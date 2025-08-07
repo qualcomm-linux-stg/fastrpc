@@ -8,7 +8,7 @@ on:
         description: Docker image
         type: string
         required: true
-        default: kmake-image:ver.1.0
+        default: fastrpc-image:latest
 
       build_matrix:
         description: Build matrix for multi target builds
@@ -37,8 +37,8 @@ jobs:
           ref: ${{ github.ref }}
           fetch-depth: 0
 
-      - name: Pull docker image
-        uses: qualcomm-linux/kernel-config/.github/actions/pull_docker_image@main
+      - name: Build fatrpc docker image
+        uses: ./.github/actions/build_docker_image
         with:
           image: ${{ inputs.docker_image }}
 
@@ -70,8 +70,8 @@ jobs:
             console.log(`Lavaname for ${currentMachine} is ${lavaname}`);
             core.setOutput("LAVANAME", lavaname);
 
-      - name: Create lava job definition
-        uses: qualcomm-linux/kernel-config/.github/actions/lava_job_render@main
+      - name: Create fastrpc - lava job definition
+        uses: ./.github/actions/lava_job_render
         id: create_job_definition
         with:
           docker_image: ${{ inputs.docker_image }}
