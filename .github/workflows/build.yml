@@ -6,8 +6,12 @@ on:
         description: Docker image
         type: string
         required: true
-      build_matrix:
-        description: Build matrix for multi target builds
+      machine:
+        description: Target machine name
+        type: string
+        required: true
+      firmware:
+        description: Firmware identifier
         type: string
         required: true
 
@@ -30,6 +34,9 @@ jobs:
       - name: Sync codebase
         id: sync
         uses: ./.github/actions/sync
+        with:
+          machine: ${{ inputs.machine }}
+          firmware: ${{ inputs.firmware }}
 
       - name: Build workspace
         id: build_workspace
@@ -50,12 +57,8 @@ jobs:
           echo "$workspace/kobj/arch/arm64/boot/Image" >> $workspace/artifacts/file_list.txt
           echo "$workspace/kobj/vmlinux" >> $workspace/artifacts/file_list.txt
           echo "$workspace/artifacts/ramdisk.gz" >> $workspace/artifacts/file_list.txt
+          echo "$workspace/kobj/arch/arm64/boot/dts/qcom/${{ inputs.machine }}.dtb" >> $workspace/artifacts/file_list.txt
 
-          # Loop through all machines from the build_matrix input
-          machines='${{ inputs.build_matrix }}'
-          for machine in $(echo "$machines" | jq -r '.[].machine'); do
-            echo "$workspace/kobj/arch/arm64/boot/dts/qcom/${machine}.dtb" >> $workspace/artifacts/file_list.txt
-          done
           echo "Artifacts file list created at $workspace/artifacts/file_list.txt"
           ls -la $workspace/artifacts
           echo "Artifacts file_list.txt contents"
