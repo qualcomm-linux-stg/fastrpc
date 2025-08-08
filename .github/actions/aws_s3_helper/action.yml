@@ -46,7 +46,7 @@ runs:
             echo "Uploading files to S3 bucket..."
             first_line=true
             # Start the JSON object
-            echo "{" > ${{ github.workspace }}/presigned_urls.json
+            echo "{" > ${{ github.workspace }}/presigned_urls_${{ inputs.machine }}.json
             while IFS= read -r file; do
               if [ -f "$file" ]; then
                 echo "Uploading $file..."
@@ -58,17 +58,17 @@ runs:
                 if [ "$first_line" = true ]; then
                   first_line=false
                 else
-                  echo "," >> ${{ github.workspace }}/presigned_urls.json
+                  echo "," >> ${{ github.workspace }}/presigned_urls_${{ inputs.machine }}.json
                 fi
                 # Append the pre-signed URL to the file
-                echo " \"${file}\": \"${presigned_url}\"" >> ${{ github.workspace }}/presigned_urls.json
+                echo " \"${file}\": \"${presigned_url}\"" >> ${{ github.workspace }}/presigned_urls_${{ inputs.machine }}.json
                 echo "Pre-signed URL for $file: $presigned_url"
               else
                 echo "Warning: $file does not exist or is not a regular file."
               fi
             done < "${{ inputs.local_file }}"
             # Close the JSON object
-            echo "}" >> ${{ github.workspace }}/presigned_urls.json
+            echo "}" >> ${{ github.workspace }}/presigned_urls_${{ inputs.machine }}.json
             ;;
           single-upload)
             echo "Uploading single file to S3 bucket..."
@@ -93,6 +93,6 @@ runs:
       if: ${{ inputs.mode == 'multi-upload' }}
       uses: actions/upload-artifact@v4
       with:
-        name: presigned_urls.json
-        path: ${{ github.workspace }}/presigned_urls.json
+        name: presigned_urls_${{ inputs.machine }}.json
+        path: ${{ github.workspace }}/presigned_urls_${{ inputs.machine }}.json
         retention-days: 3
