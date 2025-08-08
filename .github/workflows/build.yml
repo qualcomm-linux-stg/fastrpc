@@ -57,6 +57,7 @@ jobs:
           echo "$workspace/kobj/arch/arm64/boot/Image" >> $workspace/artifacts/file_list.txt
           echo "$workspace/kobj/vmlinux" >> $workspace/artifacts/file_list.txt
           echo "$workspace/artifacts/ramdisk.gz" >> $workspace/artifacts/file_list.txt
+          echo "$workspace/artifacts/ramdisk_fastrpc.gz" >> $workspace/artifacts/file_list.txt
           echo "$workspace/kobj/arch/arm64/boot/dts/qcom/${{ inputs.machine }}.dtb" >> $workspace/artifacts/file_list.txt
 
           echo "Artifacts file list created at $workspace/artifacts/file_list.txt"
