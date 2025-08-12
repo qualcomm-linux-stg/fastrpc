@@ -91,10 +91,7 @@ runs:
         ls -la ./fastrpc_dir/usr/bin
         ls -la ./fastrpc_dir/usr/lib
 
-        mkdir ${{ inputs.workspace_path }}/ramdisk_dir
-        cd ${{ inputs.workspace_path }}/ramdisk_dir/
-        gunzip ${{ inputs.workspace_path }}/artifacts/ramdisk.gz
-        cpio -idmv < ${{ inputs.workspace_path }}/artifacts/ramdisk
+        mkdir ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc
 
         if ! command -v rsync &> /dev/null; then
           echo "rsync not found, installing..."
@@ -102,21 +99,21 @@ runs:
         else
           echo "rsync is already installed"
         fi
-        echo "Syncing fastrpc_dir to ramdisk_dir"
-        rsync -a ${{ inputs.workspace_path }}/fastrpc_dir/ ${{ inputs.workspace_path }}/artifacts/ramdisk_dir/
+        echo "Syncing fastrpc_dir to ramdisk_fastrpc"
+        rsync -a ${{ inputs.workspace_path }}/fastrpc_dir/ ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/
 
     - name: Package FastRPC firmware into ramdisk
       shell: bash
       run: |
         cd ${{ inputs.workspace_path }}/firmware_dir
         echo "Package FastRPC firmware into ramdisk"
-        cp -r ${{ inputs.workspace_path }}/firmware_dir/* ${{ inputs.workspace_path }}/artifacts/ramdisk_dir/
+        cp -r ${{ inputs.workspace_path }}/firmware_dir/* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/
 
-        cd ${{ inputs.workspace_path }}/artifacts/ramdisk_dir
+        cd ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc
         find . | cpio -o -H newc > ../new_ramdisk.cpio
         cd ..
         gzip -9 new_ramdisk.cpio
-        mv new_ramdisk.cpio.gz ramdisk.gz
+        mv new_ramdisk.cpio.gz ramdisk_fastrpc.gz
 
     - name: Build kernel 
       shell: bash
@@ -155,7 +152,7 @@ runs:
         mkdir -p ../ramdisk_dir
 
         # Decompress the ramdisk.gz safely
-        gunzip -c ramdisk.gz > ramdisk
+        gunzip -c ramdisk_fastrpc.gz > ramdisk
 
         # Check the format of the ramdisk
         file ramdisk

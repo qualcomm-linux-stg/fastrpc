@@ -50,6 +50,7 @@ jobs:
           echo "$workspace/kobj/arch/arm64/boot/Image" >> $workspace/artifacts/file_list.txt
           echo "$workspace/kobj/vmlinux" >> $workspace/artifacts/file_list.txt
           echo "$workspace/artifacts/ramdisk.gz" >> $workspace/artifacts/file_list.txt
+          echo "$workspace/artifacts/ramdisk_fastrpc.gz" >> $workspace/artifacts/file_list.txt
 
           # Loop through all machines from the build_matrix input
           machines='${{ inputs.build_matrix }}'
