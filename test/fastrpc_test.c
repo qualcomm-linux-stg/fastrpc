@@ -63,8 +63,8 @@ int main(int argc, char *argv[]) {
                 break;
             case 'a':
                 arch_version = optarg;
-                if (strcmp(arch_version, "v68") != 0 && strcmp(arch_version, "v75") != 0) {
-                    printf("\nERROR: Invalid architecture version (-a). Must be v68 or v75.\n");
+                if (strcmp(arch_version, "v68") != 0 && strcmp(arch_version, "v75") != 0 && strcmp(arch_version, "v73") != 0) {
+                    printf("\nERROR: Invalid architecture version (-a). Must be v68 or v75 or v73.\n");
                     print_usage();
                     return -1;
                 }
