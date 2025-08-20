@@ -110,10 +110,32 @@ runs:
         fi
 
         echo "Copying 'usr' directory to firmware_dir..."
-        mkdir -p firmware_dir
         cp -rf "$usr_path"/* firmware_dir/
-        echo "Copied 'usr' directory to firmware_dir successfully!"
+        echo "Copied '$usr_path' directory to firmware_dir successfully!"
         echo "Firmware copied successfully!"
+
+        git clone https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
+        TARGET_RAW="${{ inputs.firmware }}"
+        # Remove "-ride" suffix if present
+        TARGET="${TARGET_RAW%-ride}"
+
+        # Construct the source path for qcom firmware in the cloned linux-firmware repo
+        # It's usually under <cloned_repo_root>/qcom/<target>
+        LINUX_FIRMWARE_QCOM_PATH="linux-firmware/qcom/${TARGET}"
+
+        # Check if the target qcom firmware directory exists in the cloned repo
+        if [ ! -d "$LINUX_FIRMWARE_QCOM_PATH" ]; then
+          echo "Warning: Directory '$LINUX_FIRMWARE_QCOM_PATH' not found in linux-firmware repo. Skipping qcom firmware copy."
+          exit -1
+        else
+          # Create the destination directory in firmware_dir
+          mkdir -p "${{ github.workspace }}/firmware_dir/lib/firmware/qcom/${TARGET}"
+          
+          # Copy the contents of the qcom target directory
+          # Use trailing slashes to copy contents, not the directory itself
+          cp -rf "${LINUX_FIRMWARE_QCOM_PATH}/"* "${{ github.workspace }}/firmware_dir/lib/firmware/qcom/${TARGET}/"
+          echo "Copied QCOM firmware from '${LINUX_FIRMWARE_QCOM_PATH}' to '${{ github.workspace }}/firmware_dir/lib/firmware/qcom/${TARGET}/' successfully!"
+        fi
 
     - name: List all subdirectories and files in firmware_dir
       shell: bash
@@ -137,8 +159,12 @@ runs:
         cd kernel
         git fetch origin
         git checkout qcom-next
-        cd ..
-        ls -ltr
+
+    - name: Clone meta-qcom repository
+      shell: bash
+      run: |
+        cd ${{ github.workspace }}
+        git clone https://github.com/qualcomm-linux/meta-qcom.git
 
     - name: Download artifacts
       shell: bash
@@ -147,7 +173,6 @@ runs:
         echo "Downloading artifacts..."
         
         mkdir -p artifacts 
-        wget -O artifacts/ramdisk.gz https://snapshots.linaro.org/member-builds/qcomlt/testimages/arm64/1379/initramfs-test-image-qemuarm64-20230321073831-1379.rootfs.cpio.gz 
         wget -O artifacts/systemd-boot-efi.deb http://ports.ubuntu.com/pool/universe/s/systemd/systemd-boot-efi_255.4-1ubuntu8_arm64.deb 
         dpkg-deb -xv artifacts/systemd-boot-efi.deb artifacts/systemd
         ls -ltr

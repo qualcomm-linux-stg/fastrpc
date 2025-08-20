@@ -29,26 +29,21 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Compile fastrpc code for LE platform
+    - name: Compile fastrpc code and Verify compiled binaries
       shell: bash
       run: |
         cd ${{ inputs.workspace_path }}
         echo "Compiling fastrpc code for LE platform"
         # Run the Docker container to compile the code  
         docker run -i --rm \
-        --user $(id -u):$(id -g) \
-        --workdir="$PWD" \
-        -v "$(dirname $PWD)":"$(dirname $PWD)" \
-        ${{ inputs.docker_image }} bash -c "
-          chmod 777 gitcompile
-          ./gitcompile --host=aarch64-linux-gnu
-        "
-
-    - name: Verify the compiled binaries
-      shell: bash
-      run: |
-        cd ${{ inputs.workspace_path }}
-        echo "Verify the compiled binaries"
+          --user $(id -u):$(id -g) \
+          --workdir="$PWD" \
+          -v "$(dirname $PWD)":"$(dirname $PWD)" \
+          ${{ inputs.docker_image }} bash -c "
+            chmod 777 gitcompile
+            ./gitcompile --host=aarch64-linux-gnu
+          "
+        echo "Verify the fastrpc compiled binaries"
 
         Files=(
           src/.libs/libadsp_default_listener.so
@@ -118,33 +113,64 @@ runs:
         ls
         mv ramdisk_fastrpc.cpio.gz ramdisk_fastrpc.gz
 
-    - name: Build kernel 
+    - name: Build kernel and Package DLKM into ramdisk
       shell: bash
       run: |
         cd ${{ inputs.workspace_path }}/kernel
         echo "Build kernel"
         pwd
         # Run the Docker container to build the kernel
-        echo "Running Docker container to build the kernel"
+        echo "::group::$(printf '__________ %-100s' 'kernel build' | tr ' ' _)"
         docker run -i --rm \
-        --user $(id -u):$(id -g) \
-        --workdir="$PWD" \
-        -v "$(dirname $PWD)":"$(dirname $PWD)" \
-        ${{ inputs.docker_image }} bash -c "
-          make O=../kobj defconfig
-          make O=../kobj -j$(nproc)
-          make O=../kobj -j$(nproc) dir-pkg INSTALL_MOD_STRIP=1
-        "
-        ls -ltr
+          --user $(id -u):$(id -g) \
+          --workdir="$PWD" \
+          -v "$(dirname $PWD)":"$(dirname $PWD)" \
+          ${{ inputs.docker_image }} bash -c "
+            make O=../kobj defconfig
+            make O=../kobj -j$(nproc)
+            make O=../kobj -j$(nproc) dir-pkg INSTALL_MOD_STRIP=1
+          "
+        echo "::endgroup::"
 
-    - name: Package DLKM into ramdisk
+        echo "Package DLKM into ramdisk"
+        (cd ${{ inputs.workspace_path }}/kobj/tar-install ; find lib/modules | cpio -o -H newc -R +0:+0 | gzip -9 >> ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc.gz)
+
+    - name: Build meta-qcom and copy to artifacts
       shell: bash
       run: |
-        echo "Package DLKM into ramdisk"
-        cd ${{ inputs.workspace_path }}
+        cd ${{ inputs.workspace_path }}/meta-qcom
+
+        # Define variables
+        USER_ID=$(id -u)
+        GROUP_ID=$(id -g)
+        USER=$(whoami)
+        WORKSPACE=${{ github.workspace }}
+        USER_HOME="/home/$USER"
+
+        # Create initramfs-test.yml with only the required lines
+        cat <<EOF > ci/initramfs-test-fastrpc.yml
+        # yaml-language-server: $schema=https://raw.githubusercontent.com/siemens/kas/master/kas/schema-kas.json
+
+        header:
+          version: 14
+
+        target:
+          - initramfs-tiny-image
+        EOF
+
+        echo "::group::$(printf '__________ %-100s' 'meta-qcom build' | tr ' ' _)"
+        # Run the Docker container to compile the code  
+        docker run -i --rm \
+          --user $(id -u):$(id -g) \
+          --workdir="$PWD" \
+          -v "$(dirname $PWD)":"$(dirname $PWD)" \
+          ${{ inputs.docker_image }} bash -c "
+              kas build ci/mirror.yml:ci/qcom-armv8a.yml:ci/qcom-distro.yml:ci/initramfs-test-fastrpc.yml
+          "
+        echo "::endgroup::"
         ls -ltr
-        (cd kobj/tar-install ; find lib/modules | cpio -o -H newc -R +0:+0 | gzip -9 >> ${{ inputs.workspace_path }}/artifacts/ramdisk.gz)
-        ls -ltr
+        ls -ltr ${WORKSPACE}/meta-qcom/build/tmp/deploy/images/qcom-armv8a/
+        cp ${WORKSPACE}/meta-qcom/build/tmp/deploy/images/qcom-armv8a/initramfs-rootfs-image-qcom-armv8a.cpio.gz ${{ inputs.workspace_path }}/artifacts/ramdisk.gz
 
     - name: Unpack and inspect ramdisk
       shell: bash
@@ -156,6 +182,7 @@ runs:
 
         # Decompress the ramdisk.gz safely
         gunzip -c ramdisk_fastrpc.gz > ramdisk
+        ls ramdisk_fastrpc.gz
 
         # Check the format of the ramdisk
         file ramdisk
