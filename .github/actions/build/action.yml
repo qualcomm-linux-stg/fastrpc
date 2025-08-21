@@ -118,24 +118,6 @@ runs:
         ls
         mv ramdisk_fastrpc.cpio.gz ramdisk_fastrpc.gz
 
-    - name: Build kernel 
-      shell: bash
-      run: |
-        cd ${{ inputs.workspace_path }}/kernel
-        echo "Build kernel"
-        pwd
-        # Run the Docker container to build the kernel
-        echo "Running Docker container to build the kernel"
-        docker run -i --rm \
-        --user $(id -u):$(id -g) \
-        --workdir="$PWD" \
-        -v "$(dirname $PWD)":"$(dirname $PWD)" \
-        ${{ inputs.docker_image }} bash -c "
-          make O=../kobj defconfig
-          make O=../kobj -j$(nproc)
-          make O=../kobj -j$(nproc) dir-pkg INSTALL_MOD_STRIP=1
-        "
-        ls -ltr
 
     - name: Package DLKM into ramdisk
       shell: bash
@@ -143,7 +125,8 @@ runs:
         echo "Package DLKM into ramdisk"
         cd ${{ inputs.workspace_path }}
         ls -ltr
-        (cd kobj/tar-install ; find lib/modules | cpio -o -H newc -R +0:+0 | gzip -9 >> ${{ inputs.workspace_path }}/artifacts/ramdisk.gz)
+        tar -xzf ci/kernel-kobj.tar.gz
+        (cd ci/kobj/tar-install ; find lib/modules | cpio -o -H newc -R +0:+0 | gzip -9 >> ${{ inputs.workspace_path }}/artifacts/ramdisk.gz)
         ls -ltr
 
     - name: Unpack and inspect ramdisk

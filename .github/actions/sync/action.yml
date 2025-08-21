@@ -129,17 +129,6 @@ runs:
         git config --global user.name "github-actions"
         git config --global user.email "github-actions@github.com"
 
-    - name: Clone kernel repositories
-      shell: bash
-      run: |
-        cd ${{ github.workspace }}
-        git clone https://github.com/qualcomm-linux/kernel.git
-        cd kernel
-        git fetch origin
-        git checkout qcom-next
-        cd ..
-        ls -ltr
-
     - name: Download artifacts
       shell: bash
       run: |
@@ -147,7 +136,7 @@ runs:
         echo "Downloading artifacts..."
         
         mkdir -p artifacts 
-        wget -O artifacts/ramdisk.gz https://snapshots.linaro.org/member-builds/qcomlt/testimages/arm64/1379/initramfs-test-image-qemuarm64-20230321073831-1379.rootfs.cpio.gz 
+        cp ${{ github.workspace }}\ci\ramdisk-tmp\ramdisk-qcom-armv8a.cpio.gz artifacts/ramdisk.gz
         wget -O artifacts/systemd-boot-efi.deb http://ports.ubuntu.com/pool/universe/s/systemd/systemd-boot-efi_255.4-1ubuntu8_arm64.deb 
         dpkg-deb -xv artifacts/systemd-boot-efi.deb artifacts/systemd
         ls -ltr
