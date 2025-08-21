@@ -54,9 +54,9 @@ runs:
           if [[ "${subdir,,}" == */"${TARGET,,}" ]]; then
             echo "Found matching DSP binaries for target '$TARGET': $subdir - $version"
             echo "Copying DSP binaries for $dsp in $subdir/$version"
-            mkdir -p "../firmware_dir/usr/lib/dsp/${dsp}"
-            cp -rf "$subdir/$version/"* "../firmware_dir/usr/lib/dsp/${dsp}/"
-            echo "Copied DSP binaries for $dsp in ../firmware_dir/usr/lib/dsp/${dsp}"
+            mkdir -p "${{ github.workspace }}/firmware_dir/usr/lib/dsp/${dsp}"
+            cp -rf "$subdir/$version/"* "${{ github.workspace }}/firmware_dir/usr/lib/dsp/${dsp}/"
+            echo "Copied DSP binaries for $dsp in ${{ github.workspace }}/firmware_dir/usr/lib/dsp/${dsp}"
             DSP_REF="$version"
             echo "${dsp}:${subdir}////${version}"
           fi
@@ -110,10 +110,32 @@ runs:
         fi
 
         echo "Copying 'usr' directory to firmware_dir..."
-        mkdir -p firmware_dir
-        cp -rf "$usr_path"/* firmware_dir/
-        echo "Copied 'usr' directory to firmware_dir successfully!"
+        cp -rf "$usr_path"/* ${{ github.workspace }}/firmware_dir/
+        echo "Copied "$usr_path"/* ${{ github.workspace }}/firmware_dir/ directory successfully!"
         echo "Firmware copied successfully!"
+
+        git clone https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
+        TARGET_RAW="${{ inputs.firmware }}"
+        # Remove "-ride" suffix if present
+        TARGET="${TARGET_RAW%-ride}"
+
+        # Construct the source path for qcom firmware in the cloned linux-firmware repo
+        # It's usually under <cloned_repo_root>/qcom/<target>
+        LINUX_FIRMWARE_QCOM_PATH="linux-firmware/qcom/${TARGET}"
+
+        # Check if the target qcom firmware directory exists in the cloned repo
+        if [ ! -d "$LINUX_FIRMWARE_QCOM_PATH" ]; then
+          echo "Warning: Directory '$LINUX_FIRMWARE_QCOM_PATH' not found in linux-firmware repo. Skipping qcom firmware copy."
+          exit -1
+        else
+          # Create the destination directory in firmware_dir
+          mkdir -p "${{ github.workspace }}/firmware_dir/lib/firmware/qcom/${TARGET}"
+          
+          # Copy the contents of the qcom target directory
+          # Use trailing slashes to copy contents, not the directory itself
+          cp -rf "${LINUX_FIRMWARE_QCOM_PATH}/"* "${{ github.workspace }}/firmware_dir/lib/firmware/qcom/${TARGET}/"
+          echo "Copied QCOM firmware from '${LINUX_FIRMWARE_QCOM_PATH}' to '${{ github.workspace }}/firmware_dir/lib/firmware/qcom/${TARGET}/' successfully!"
+        fi
 
     - name: List all subdirectories and files in firmware_dir
       shell: bash

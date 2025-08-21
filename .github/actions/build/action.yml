@@ -123,10 +123,11 @@ runs:
       shell: bash
       run: |
         echo "Package DLKM into ramdisk"
-        cd ${{ inputs.workspace_path }}
+        cd ${{ inputs.workspace_path }}/ci/kernel-tmp
         ls -ltr
-        tar -xzf ci/kernel-kobj.tar.gz
-        (cd ci/kobj/tar-install ; find lib/modules | cpio -o -H newc -R +0:+0 | gzip -9 >> ${{ inputs.workspace_path }}/artifacts/ramdisk.gz)
+        tar -xzf kernel-kobj.tar.gz 
+        ls -ltr
+        (cd kobj/tar-install ; find lib/modules | cpio -o -H newc -R +0:+0 | gzip -9 >> ${{ inputs.workspace_path }}/artifacts/ramdisk.gz)
         ls -ltr
 
     - name: Unpack and inspect ramdisk
