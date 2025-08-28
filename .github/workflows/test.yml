@@ -37,7 +37,7 @@ jobs:
           ref: ${{ github.ref }}
           fetch-depth: 0
 
-      - name: Build fatrpc docker image
+      - name: Build fastrpc docker image
         uses: ./.github/actions/build_docker_image
         with:
           image: ${{ inputs.docker_image }}

@@ -11,8 +11,8 @@
 #
 # This action is intended for use in CI/CD pipelines where building and caching Docker images is required.
 
-name: Build fatrpc docker image
-description: Build fatrpc docker image
+name: Build fastrpc docker image
+description: Build fastrpc docker image
 
 inputs:
   image:

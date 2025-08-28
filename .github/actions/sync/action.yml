@@ -158,7 +158,6 @@ runs:
         echo "Downloading artifacts..."
         
         mkdir -p artifacts 
-        cp ${{ github.workspace }}/ci/ramdisk-tmp/ramdisk-qcom-armv8a.cpio.gz artifacts/ramdisk.gz
         wget -O artifacts/systemd-boot-efi.deb http://ports.ubuntu.com/pool/universe/s/systemd/systemd-boot-efi_255.4-1ubuntu8_arm64.deb 
         dpkg-deb -xv artifacts/systemd-boot-efi.deb artifacts/systemd
         ls -ltr
