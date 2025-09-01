@@ -85,6 +85,7 @@ runs:
         # Copy fastrpc test binary
         cp -rf test/fastrpc_test fastrpc_dir/usr/bin
         cp -rf test/* fastrpc_dir/usr/bin
+        cp -rf test/linux/* fastrpc_dir/usr/lib
         echo "Listing contents of ./fastrpc_dir"
         ls -la ./fastrpc_dir
         ls -la ./fastrpc_dir/usr/bin
