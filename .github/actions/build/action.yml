@@ -128,7 +128,7 @@ runs:
         ls -ltr
         tar -xzf kernel-kobj.tar.gz 
         ls -ltr
-        (cd kobj/tar-install ; find lib/modules | cpio -o -H newc -R +0:+0 | gzip -9 >> ${{ inputs.workspace_path }}/artifacts/ramdisk.gz)
+        (cd kobj/tar-install ; find lib/modules | cpio -o -H newc -R +0:+0 | gzip -9 >> ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc.gz)
         ls -ltr
 
     - name: Unpack and inspect ramdisk

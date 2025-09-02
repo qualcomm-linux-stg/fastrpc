@@ -105,11 +105,11 @@ runs:
         usr_path=$(find "$search_root" -type d -name usr | head -n 1)
 
         if [ -z "$usr_path" ]; then
-          echo "Error: 'usr' directory not found."
+          echo "Error: $usr_path directory not found."
           exit 1
         fi
 
-        echo "Copying 'usr' directory to firmware_dir..."
+        echo "Copying $usr_path directory to firmware_dir..."
         cp -rf "$usr_path"/* ${{ github.workspace }}/firmware_dir/
         echo "Copied "$usr_path"/* ${{ github.workspace }}/firmware_dir/ directory successfully!"
         echo "Firmware copied successfully!"
