@@ -112,14 +112,6 @@ runs:
         echo "Package FastRPC firmware into ramdisk"
         cp -r ${{ inputs.workspace_path }}/firmware_dir/* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/
 
-        cd ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc
-        find . | cpio -o -H newc > ../ramdisk_fastrpc.cpio
-        cd ..
-        gzip -9 ramdisk_fastrpc.cpio
-        ls
-        mv ramdisk_fastrpc.cpio.gz ramdisk_fastrpc.gz
-
-
     - name: Package DLKM into ramdisk
       shell: bash
       run: |
@@ -128,8 +120,16 @@ runs:
         ls -ltr
         tar -xzf kernel-kobj.tar.gz 
         ls -ltr
-        (cd kobj/tar-install ; find lib/modules | cpio -o -H newc -R +0:+0 | gzip -9 >> ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc.gz)
-        ls -ltr
+        cd kobj/tar-install
+        cp -r lib/* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/
+        ls -la ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/
+
+        cd ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc
+        find . | cpio -o -H newc > ../ramdisk_fastrpc.cpio
+        cd ..
+        gzip -9 ramdisk_fastrpc.cpio
+        ls
+        mv ramdisk_fastrpc.cpio.gz ramdisk_fastrpc.gz
 
     - name: Unpack and inspect ramdisk
       shell: bash

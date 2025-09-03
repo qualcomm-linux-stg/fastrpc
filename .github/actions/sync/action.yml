@@ -110,8 +110,8 @@ runs:
         fi
 
         echo "Copying $usr_path directory to firmware_dir..."
-        cp -rf "$usr_path"/* ${{ github.workspace }}/firmware_dir/
-        echo "Copied "$usr_path"/* ${{ github.workspace }}/firmware_dir/ directory successfully!"
+        cp -rf "$usr_path"/* ${{ github.workspace }}/firmware_dir/usr/
+        echo "Copied "$usr_path"/* ${{ github.workspace }}/firmware_dir/usr/ directory successfully!"
         echo "Firmware copied successfully!"
 
         git clone https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
@@ -129,12 +129,12 @@ runs:
           exit -1
         else
           # Create the destination directory in firmware_dir
-          mkdir -p "${{ github.workspace }}/firmware_dir/lib/firmware/qcom/${TARGET}"
+          mkdir -p "${{ github.workspace }}/firmware_dir/usr/lib/firmware/qcom/${TARGET}"
           
           # Copy the contents of the qcom target directory
           # Use trailing slashes to copy contents, not the directory itself
-          cp -rf "${LINUX_FIRMWARE_QCOM_PATH}/"* "${{ github.workspace }}/firmware_dir/lib/firmware/qcom/${TARGET}/"
-          echo "Copied QCOM firmware from '${LINUX_FIRMWARE_QCOM_PATH}' to '${{ github.workspace }}/firmware_dir/lib/firmware/qcom/${TARGET}/' successfully!"
+          cp -rf "${LINUX_FIRMWARE_QCOM_PATH}/"* "${{ github.workspace }}/firmware_dir/usr/lib/firmware/qcom/${TARGET}/"
+          echo "Copied QCOM firmware from '${LINUX_FIRMWARE_QCOM_PATH}' to '${{ github.workspace }}/firmware_dir/usr/lib/firmware/qcom/${TARGET}/' successfully!"
         fi
 
     - name: List all subdirectories and files in firmware_dir
