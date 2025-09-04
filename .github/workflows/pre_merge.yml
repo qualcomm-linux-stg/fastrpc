@@ -28,7 +28,7 @@ jobs:
     strategy:
       matrix:
         include: ${{ fromJSON(needs.loading.outputs.build_matrix) }}
-    uses: ./.github/workflows/build.yml
+    uses: ./.github/workflows/sync_build.yml
     secrets: inherit
     with:
       docker_image: fastrpc-image:latest

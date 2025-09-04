@@ -1,4 +1,4 @@
-name: _build
+name: sync_build
 on:
   workflow_call:
     inputs:
