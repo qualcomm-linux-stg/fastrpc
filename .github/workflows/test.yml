@@ -1,5 +1,12 @@
-name: _test
-description: Run tests on LAVA
+name: test
+description: |
+  Run tests on LAVA for a specified machine using a Docker image.
+  This reusable GitHub Actions workflow executes FastRPC tests on LAVA infrastructure.
+  It leverages a Docker image for test execution and supports multi-target builds via a matrix strategy.
+  The workflow automates job creation, submission, and result validation on LAVA,
+  providing a streamlined testing process.
+  Designed to be triggered by other workflows, it offers a summary of test outcomes
+  with direct links to LAVA job results, enhancing traceability and debugging.
 
 on:
   workflow_call:
@@ -20,12 +27,11 @@ on:
         type: string
         required: true
 
-
 jobs:
   test:
     runs-on:
-      group: GHA-FastRPC-Stg-SelfHosted-RG
-      labels: [ self-hosted, fastrpc-stg-u2404-x64-large-od-ephem ] 
+      group: GHA-fastrpc-Prd-SelfHosted-RG
+      labels: [ self-hosted, fastrpc-prd-u2404-x64-large-od-ephem ]
     strategy:
       fail-fast: false
       matrix:
@@ -38,7 +44,7 @@ jobs:
           fetch-depth: 0
 
       - name: Build fastrpc docker image
-        uses: ./.github/actions/build_docker_image
+        uses: qualcomm-linux-stg/fastrpc/.github/actions/build_docker_image
         with:
           image: ${{ inputs.docker_image }}
 
@@ -50,12 +56,7 @@ jobs:
           path: ${{ github.workspace }}
 
       - name: Clone lava job render scripts
-        run: |
-          cd ..
-          git clone https://github.com/qualcomm-linux/job_render
-          cd job_render
-          git checkout main
-          git pull origin main
+        run: cd .. && git clone https://github.com/qualcomm-linux/job_render
 
       - name: Extract the LAVA machine name
         id: get_lavaname
@@ -76,7 +77,7 @@ jobs:
             core.setOutput("LAVANAME", lavaname);
 
       - name: Create fastrpc - lava job definition
-        uses: ./.github/actions/lava_job_render
+        uses: qualcomm-linux-stg/fastrpc/.github/actions/lava_job_render
         id: create_job_definition
         with:
           docker_image: ${{ inputs.docker_image }}

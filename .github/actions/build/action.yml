@@ -1,21 +1,12 @@
-# This GitHub Action composite workflow automates the build and packaging process for the FastRPC workspace.
-# 
-# Steps included:
-# 1. Compiles FastRPC code for the LE platform using a specified Docker image.
-# 2. Verifies the existence of expected compiled binaries.
-# 3. Copies FastRPC binaries and test binaries into a structured directory, then synchronizes them into a ramdisk directory.
-# 4. Packages FastRPC firmware into the ramdisk by copying firmware files and rebuilding the ramdisk image.
-# 5. Builds the kernel inside a Docker container and packages kernel modules (DLKM) into the ramdisk.
-# 6. Unpacks and inspects the final ramdisk to verify the presence of FastRPC binaries and libraries.
-#
-# Inputs:
-#   - docker_image: The Docker image to use for building (default: fastrpc-image:latest).
-#   - workspace_path: The path to the workspace directory.
-#
-# This action is intended for use in CI pipelines to ensure reproducible builds and packaging of FastRPC and related components.
-
 name: Build workspace
-description: Build workspace
+description: |
+  Builds and packages the FastRPC workspace.
+  This composite action compiles the FastRPC source code and kernel modules
+  using a specified Docker image, verifies the compilation artifacts, and
+  then packages the resulting binaries, libraries, and kernel modules
+  into a gzipped CPIO ramdisk. It also includes steps to copy
+  firmware files and test binaries into the ramdisk.
+  Finally, it unpacks the generated ramdisk for inspection and verification.
 
 inputs:
   docker_image:
@@ -29,27 +20,21 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Compile fastrpc code for LE platform
+    - name: Compile fastrpc code using Docker Image
       shell: bash
       run: |
         cd ${{ inputs.workspace_path }}
-        echo "Compiling fastrpc code for LE platform"
-        # Run the Docker container to compile the code  
+        echo "::group::$(printf '__________ %-100s' 'Compile fastrpc' | tr ' ' _)"
         docker run -i --rm \
         --user $(id -u):$(id -g) \
         --workdir="$PWD" \
         -v "$(dirname $PWD)":"$(dirname $PWD)" \
         ${{ inputs.docker_image }} bash -c "
-          chmod 777 gitcompile
           ./gitcompile --host=aarch64-linux-gnu
         "
+        echo "::endgroup::"
 
-    - name: Verify the compiled binaries
-      shell: bash
-      run: |
-        cd ${{ inputs.workspace_path }}
-        echo "Verify the compiled binaries"
-
+        echo "Verify the compiled fastrpc files"
         Files=(
           src/.libs/libadsp_default_listener.so
           src/.libs/libadsprpc.so
@@ -66,69 +51,57 @@ runs:
          if [ -f "$File" ] ; then echo "$File - Exists" ; else echo "$File - Not Exists" && exit 1 ; fi
         done
 
-    - name: Copy fastrpc binary and fastrpc test binary
+    - name: Build kernel using Docker Image
       shell: bash
       run: |
+        cd ${{ inputs.workspace_path }}/kernel
+
+        echo "::group::$(printf '__________ %-100s' 'Compile kernel' | tr ' ' _)"
+        docker run -i --rm \
+          --user $(id -u):$(id -g) \
+          --workdir="$PWD" \
+          -v "$(dirname $PWD)":"$(dirname $PWD)" \
+          ${{ inputs.docker_image }} bash -c "
+            make O=../kobj defconfig
+            make O=../kobj -j$(nproc)
+            make O=../kobj -j$(nproc) dir-pkg INSTALL_MOD_STRIP=1
+          "
+        echo "::endgroup::"
+
+    - name: Package Files into ramdisk
+      shell: bash
+      run: |
+        # Create directories for pushing fastrpc binaries
+        mkdir -p ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib
+        mkdir -p ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/bin
+
         cd ${{ inputs.workspace_path }}
-        echo "Copy fastrpc binary and fastrpc test binary"
-        # Create directories for fastrpc binary
-        mkdir -p fastrpc_dir/usr/lib
-        mkdir -p fastrpc_dir/usr/bin
-        cp -rf src/.libs/libadsp_default_listener.so* fastrpc_dir/usr/lib/
-        cp -rf src/.libs/libadsprpc.so* fastrpc_dir/usr/lib/
-        cp -rf src/.libs/libcdsp_default_listener.so* fastrpc_dir/usr/lib/
-        cp -rf src/.libs/libcdsprpc.so* fastrpc_dir/usr/lib/
-        cp -rf src/.libs/libsdsp_default_listener.so* fastrpc_dir/usr/lib/
-        cp -rf src/.libs/libsdsprpc.so* fastrpc_dir/usr/lib/
-        cp -rf src/adsprpcd src/cdsprpcd src/sdsprpcd fastrpc_dir/usr/bin/
 
-        # Copy fastrpc test binary
-        cp -rf test/fastrpc_test fastrpc_dir/usr/bin
-        cp -rf test/* fastrpc_dir/usr/bin
-        cp -rf test/* fastrpc_dir/usr/lib
-        echo "Listing contents of ./fastrpc_dir"
-        ls -la ./fastrpc_dir
-        ls -la ./fastrpc_dir/usr/bin
-        ls -la ./fastrpc_dir/usr/lib
+        echo "Copy fastrpc files"
+        cp -rf src/.libs/libadsp_default_listener.so* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/
+        cp -rf src/.libs/libadsprpc.so* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/
+        cp -rf src/.libs/libcdsp_default_listener.so* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/
+        cp -rf src/.libs/libcdsprpc.so* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/
+        cp -rf src/.libs/libsdsp_default_listener.so* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/
+        cp -rf src/.libs/libsdsprpc.so* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/
+        cp -rf src/adsprpcd src/cdsprpcd src/sdsprpcd ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/bin/
 
-        mkdir ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc
-        # cd ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/
-        # gunzip ${{ inputs.workspace_path }}/artifacts/ramdisk.gz
-        # cpio -idmv < ${{ inputs.workspace_path }}/artifacts/ramdisk
+        echo "Copy fastrpc test files"
+        cp -rf test/fastrpc_test ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/bin
+        cp -rf test/linux/* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/bin
+        cp -rf test/v75/* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/bin
 
-        if ! command -v rsync &> /dev/null; then
-          echo "rsync not found, installing..."
-          apt-get install -y rsync
-        else
-          echo "rsync is already installed"
-        fi
-        echo "Syncing fastrpc_dir to ramdisk_fastrpc"
-        rsync -a ${{ inputs.workspace_path }}/fastrpc_dir/ ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/
-
-    - name: Package FastRPC firmware into ramdisk
-      shell: bash
-      run: |
-        # cd ${{ inputs.workspace_path }}/firmware_dir
-        echo "Package FastRPC firmware into ramdisk"
+        echo "Package FastRPC firmware files"
         cp -r ${{ inputs.workspace_path }}/firmware_dir/* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/
 
-    - name: Package DLKM into ramdisk
-      shell: bash
-      run: |
         echo "Package DLKM into ramdisk"
-        cd ${{ inputs.workspace_path }}/ci/kernel-tmp
-        ls -ltr
-        tar -xzf kernel-kobj.tar.gz 
-        ls -ltr
-        cd kobj/tar-install
+        cd ${{ inputs.workspace_path }}/kobj/tar-install
         cp -r lib/* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/
         ls -la ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/
 
-        cd ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc
-        find . | cpio -o -H newc > ../ramdisk_fastrpc.cpio
-        cd ..
+        cd ${{ inputs.workspace_path }}/artifacts/
+        find ramdisk_fastrpc | cpio -o -H newc > ramdisk_fastrpc.cpio
         gzip -9 ramdisk_fastrpc.cpio
-        ls
         mv ramdisk_fastrpc.cpio.gz ramdisk_fastrpc.gz
 
     - name: Unpack and inspect ramdisk
@@ -137,20 +110,11 @@ runs:
         echo "Unpack and mount ramdisk"
         cd ${{ inputs.workspace_path }}/artifacts
 
-        mkdir -p ../ramdisk_dir
-
         # Decompress the ramdisk.gz safely
-        gunzip -c ramdisk_fastrpc.gz > ramdisk
-
-        # Check the format of the ramdisk
-        file ramdisk
-
-        # Copy to working directory
-        cp ramdisk ../ramdisk_dir/
-        cd ../ramdisk_dir
+        gunzip -c ramdisk_fastrpc.gz > ramdisk_test/ramdisk
 
         echo "Unpacking ramdisk"
-
+        cd ramdisk_test
         # Use safer syntax to avoid broken pipe
         cpio -idmv < ramdisk || echo "cpio unpack failed"
 

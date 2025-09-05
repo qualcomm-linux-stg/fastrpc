@@ -1,5 +1,13 @@
 name: Sync workspace
-
+description: |
+  This composite action synchronizes a workspace by cleaning it up,
+  checking out necessary code repositories, and preparing a firmware
+  directory with required binaries. It clones and copies FastRPC hexagon
+  DSP binaries and Linux firmware (specifically QCOM firmware)
+  based on the provided `firmware` input. It also clones the
+  `qualcomm-linux/kernel` repository.
+  The action sets an output `workspace_path` to the GitHub workspace
+  directory.
 
 inputs:
   machine:
@@ -54,66 +62,19 @@ runs:
           if [[ "${subdir,,}" == */"${TARGET,,}" ]]; then
             echo "Found matching DSP binaries for target '$TARGET': $subdir - $version"
             echo "Copying DSP binaries for $dsp in $subdir/$version"
-            mkdir -p "${{ github.workspace }}/firmware_dir/usr/lib/dsp/${dsp}"
-            cp -rf "$subdir/$version/"* "${{ github.workspace }}/firmware_dir/usr/lib/dsp/${dsp}/"
-            echo "Copied DSP binaries for $dsp in ${{ github.workspace }}/firmware_dir/usr/lib/dsp/${dsp}"
+            mkdir -p "../firmware_dir/usr/lib/dsp/${dsp}"
+            cp -rf "$subdir/$version/"* "../firmware_dir/usr/lib/dsp/${dsp}/"
+            echo "Copied DSP binaries for $dsp in ../firmware_dir/usr/lib/dsp/${dsp}"
             DSP_REF="$version"
             echo "${dsp}:${subdir}////${version}"
           fi
         done < <(grep "^Install:" "$CONFIG")
         echo "DSP binaries copied successfully!"
 
-        echo "Extracting Origin URL from WHENCE file...$DSP_REF"
-        if [ -z "$DSP_REF" ]; then
-          echo "Error: DSP reference not found for target '$TARGET'."
-          exit 1
-        fi
-
-        origin_url=$(awk -v ref="$DSP_REF" '
-          BEGIN { found=0 }
-          /^Dir:/ {
-            if ($0 ~ ref) {
-              found=1
-            }
-          }
-          found && /^Origin:/ {
-            print $2
-            exit
-          }
-        ' WHENCE)
-
-        if [ -z "$origin_url" ]; then
-          echo "Error: DSP reference '$DSP_REF' not found in WHENCE file."
-          exit 1
-        fi
-
-        echo "Downloading firmware from $origin_url..."
-        curl -L -o firmware.zip "$origin_url"
-        ls -lts
-
-        echo "Checking if firmware.zip is actually a zip archive..."
-        if unzip -t firmware.zip > /dev/null 2>&1; then
-          echo "Extracting firmware..."
-          unzip firmware.zip -d extracted_firmware
-          search_root="extracted_firmware"
-        else
-          echo "Not a zip archive. Assuming it's already extracted."
-          search_root="$PWD"
-        fi
-
-        echo "Searching for 'usr' directory..."
-        usr_path=$(find "$search_root" -type d -name usr | head -n 1)
-
-        if [ -z "$usr_path" ]; then
-          echo "Error: $usr_path directory not found."
-          exit 1
-        fi
-
-        echo "Copying $usr_path directory to firmware_dir..."
-        cp -rf "$usr_path"/* ${{ github.workspace }}/firmware_dir/usr/
-        echo "Copied "$usr_path"/* ${{ github.workspace }}/firmware_dir/usr/ directory successfully!"
-        echo "Firmware copied successfully!"
-
+    - name: Clone Firmware binaries repositories and copy Firmware 
+      shell: bash
+      run: |
+        cd ${{ github.workspace }}
         git clone https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
         TARGET_RAW="${{ inputs.firmware }}"
         # Remove "-ride" suffix if present
@@ -125,7 +86,7 @@ runs:
 
         # Check if the target qcom firmware directory exists in the cloned repo
         if [ ! -d "$LINUX_FIRMWARE_QCOM_PATH" ]; then
-          echo "Warning: Directory '$LINUX_FIRMWARE_QCOM_PATH' not found in linux-firmware repo. Skipping qcom firmware copy."
+          echo "ERROR: Directory '$LINUX_FIRMWARE_QCOM_PATH' not found in linux-firmware repo."
           exit -1
         else
           # Create the destination directory in firmware_dir
@@ -151,16 +112,14 @@ runs:
         git config --global user.name "github-actions"
         git config --global user.email "github-actions@github.com"
 
-    - name: Download artifacts
+    - name: Clone kernel repositories
       shell: bash
       run: |
         cd ${{ github.workspace }}
-        echo "Downloading artifacts..."
-        
-        mkdir -p artifacts 
-        wget -O artifacts/systemd-boot-efi.deb http://ports.ubuntu.com/pool/universe/s/systemd/systemd-boot-efi_255.4-1ubuntu8_arm64.deb 
-        dpkg-deb -xv artifacts/systemd-boot-efi.deb artifacts/systemd
-        ls -ltr
+        git clone https://github.com/qualcomm-linux/kernel.git
+        cd kernel
+        git fetch origin
+        git checkout qcom-next
 
     - name: Set workspace path
       id: set-workspace
