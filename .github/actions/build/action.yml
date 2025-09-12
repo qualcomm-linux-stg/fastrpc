@@ -31,25 +31,9 @@ runs:
         -v "$(dirname $PWD)":"$(dirname $PWD)" \
         ${{ inputs.docker_image }} bash -c "
           ./gitcompile --host=aarch64-linux-gnu
+          make install DESTDIR=${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc
         "
         echo "::endgroup::"
-
-        echo "Verify the compiled fastrpc files"
-        Files=(
-          src/.libs/libadsp_default_listener.so
-          src/.libs/libadsprpc.so
-          src/.libs/libcdsp_default_listener.so
-          src/.libs/libcdsprpc.so
-          src/.libs/libsdsp_default_listener.so
-          src/.libs/libsdsprpc.so
-          src/adsprpcd
-          src/cdsprpcd
-          src/sdsprpcd
-        )
-        for File in "${Files[@]}"
-        do 
-         if [ -f "$File" ] ; then echo "$File - Exists" ; else echo "$File - Not Exists" && exit 1 ; fi
-        done
 
     - name: Build kernel using Docker Image
       shell: bash
@@ -71,24 +55,6 @@ runs:
     - name: Package Files into ramdisk
       shell: bash
       run: |
-        # Create directories for pushing fastrpc binaries
-        mkdir -p ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib
-        mkdir -p ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/bin
-
-        cd ${{ inputs.workspace_path }}
-
-        echo "Copy fastrpc files"
-        cp -rf src/.libs/libadsp_default_listener.so* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/
-        cp -rf src/.libs/libadsprpc.so* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/
-        cp -rf src/.libs/libcdsp_default_listener.so* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/
-        cp -rf src/.libs/libcdsprpc.so* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/
-        cp -rf src/.libs/libsdsp_default_listener.so* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/
-        cp -rf src/.libs/libsdsprpc.so* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/
-        cp -rf src/adsprpcd src/cdsprpcd src/sdsprpcd ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/bin/
-
-        echo "Copy fastrpc test files"
-        cp -rf test/* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/bin
-
         echo "Package FastRPC firmware files"
         cp -r ${{ inputs.workspace_path }}/firmware_dir/* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/
 
