@@ -30,7 +30,7 @@ runs:
         --workdir="$PWD" \
         -v "$(dirname $PWD)":"$(dirname $PWD)" \
         ${{ inputs.docker_image }} bash -c "
-          chmod +x ./gitcompile 
+          chmod +x ./gitcompile
           ./gitcompile --host=aarch64-linux-gnu
         "
         echo "::endgroup::"
@@ -74,6 +74,8 @@ runs:
       run: |
         # Create directories for pushing fastrpc binaries
         mkdir -p ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib
+        mkdir -p ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/local/lib/fastrpc_test
+        mkdir -p ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/local/share/fastrpc_test
         mkdir -p ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/bin
 
         cd ${{ inputs.workspace_path }}
@@ -88,8 +90,10 @@ runs:
         cp -rf src/adsprpcd src/cdsprpcd src/sdsprpcd ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/bin/
 
         echo "Copy fastrpc test files"
-        cp -rf test/* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/bin
-        cp -rf test/* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib
+        cp -rf test/fastrpc_test ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/bin/
+        cp -rf test/linux/* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/local/lib/fastrpc_test
+        cp -rf test/v68 ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/local/share/fastrpc_test
+        cp -rf test/v75 ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/local/share/fastrpc_test
 
         echo "Package FastRPC firmware files"
         cp -r ${{ inputs.workspace_path }}/firmware_dir/* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/
