@@ -31,21 +31,25 @@ runs:
         -v "$(dirname $PWD)":"$(dirname $PWD)" \
         ${{ inputs.docker_image }} bash -c "
           chmod +x ./gitcompile
-          ./gitcompile --host=aarch64-linux-gnu
+          ./gitcompile --host=aarch64-linux-gnu --prefix=${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr
         "
         echo "::endgroup::"
 
         echo "Verify the compiled fastrpc files"
         Files=(
-          src/.libs/libadsp_default_listener.so
-          src/.libs/libadsprpc.so
-          src/.libs/libcdsp_default_listener.so
-          src/.libs/libcdsprpc.so
-          src/.libs/libsdsp_default_listener.so
-          src/.libs/libsdsprpc.so
-          src/adsprpcd
-          src/cdsprpcd
-          src/sdsprpcd
+          ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/libadsp_default_listener.so
+          ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/libadsprpc.so
+          ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/libcdsp_default_listener.so
+          ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/libcdsprpc.so
+          ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/libsdsp_default_listener.so
+          ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/libsdsprpc.so
+          ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/bin/adsprpcd
+          ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/bin/cdsprpcd
+          ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/bin/sdsprpcd
+          ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/bin/fastrpc_test
+          ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/fastrpc_test/libcalculator.so
+          ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/share/fastrpc_test/v68/libcalculator_skel.so
+          ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/share/fastrpc_test/v75/libcalculator_skel.so
         )
         for File in "${Files[@]}"
         do 
@@ -72,29 +76,6 @@ runs:
     - name: Package Files into ramdisk
       shell: bash
       run: |
-        # Create directories for pushing fastrpc binaries
-        mkdir -p ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib
-        mkdir -p ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/local/lib/fastrpc_test
-        mkdir -p ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/local/share/fastrpc_test
-        mkdir -p ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/bin
-
-        cd ${{ inputs.workspace_path }}
-
-        echo "Copy fastrpc files"
-        cp -rf src/.libs/libadsp_default_listener.so* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/
-        cp -rf src/.libs/libadsprpc.so* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/
-        cp -rf src/.libs/libcdsp_default_listener.so* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/
-        cp -rf src/.libs/libcdsprpc.so* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/
-        cp -rf src/.libs/libsdsp_default_listener.so* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/
-        cp -rf src/.libs/libsdsprpc.so* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/lib/
-        cp -rf src/adsprpcd src/cdsprpcd src/sdsprpcd ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/bin/
-
-        echo "Copy fastrpc test files"
-        cp -rf test/fastrpc_test ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/bin/
-        cp -rf test/linux/* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/local/lib/fastrpc_test
-        cp -rf test/v68 ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/local/share/fastrpc_test
-        cp -rf test/v75 ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr/local/share/fastrpc_test
-
         echo "Package FastRPC firmware files"
         cp -r ${{ inputs.workspace_path }}/firmware_dir/* ${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/
 
