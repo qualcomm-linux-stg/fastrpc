@@ -39,7 +39,7 @@ jobs:
           fetch-depth: 0
 
       - name: Build fastrpc docker image
-        uses: qualcomm-linux-stg/fastrpc/.github/actions/build_docker_image@development
+        uses: qualcomm-linux-stg/fastrpc/.github/actions/build_docker_image@multi-target-support
         with:
           image: ${{ inputs.docker_image }}
 
@@ -54,7 +54,7 @@ jobs:
         run: cd .. && git clone https://github.com/qualcomm-linux/job_render
 
       - name: Create fastrpc - lava job definition
-        uses: qualcomm-linux-stg/fastrpc/.github/actions/lava_job_render@development
+        uses: qualcomm-linux-stg/fastrpc/.github/actions/lava_job_render@multi-target-support
         id: create_job_definition
         with:
           docker_image: ${{ inputs.docker_image }}
