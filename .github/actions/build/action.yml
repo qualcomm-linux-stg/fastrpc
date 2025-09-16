@@ -32,6 +32,7 @@ runs:
         ${{ inputs.docker_image }} bash -c "
           chmod +x ./gitcompile
           ./gitcompile --host=aarch64-linux-gnu --prefix=${{ inputs.workspace_path }}/artifacts/ramdisk_fastrpc/usr
+          make install
         "
         echo "::endgroup::"
 
