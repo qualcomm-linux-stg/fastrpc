@@ -40,13 +40,13 @@ jobs:
           fetch-depth: 1
 
       - name: Build fastrpc docker image
-        uses: qualcomm/fastrpc/.github/actions/build_docker_image@development
+        uses: qualcomm/fastrpc/.github/actions/build_docker_image@multi-target-support
         with:
           image: ${{ inputs.docker_image }}
 
       - name: Sync codebase
         id: sync
-        uses: qualcomm/fastrpc/.github/actions/sync@development
+        uses: qualcomm/fastrpc/.github/actions/sync@multi-target-support
         with:
           machine: ${{ inputs.machine }}
           firmware: ${{ inputs.firmware }}
@@ -54,7 +54,7 @@ jobs:
 
       - name: Build workspace
         id: build_workspace
-        uses: qualcomm/fastrpc/.github/actions/build@development
+        uses: qualcomm/fastrpc/.github/actions/build@multi-target-support
         with:
           docker_image: ${{ inputs.docker_image }}
           workspace_path: ${{ steps.sync.outputs.workspace_path }}
@@ -80,7 +80,7 @@ jobs:
           cat "$workspace/artifacts/file_list.txt"
 
       - name: Upload artifacts
-        uses: qualcomm/fastrpc/.github/actions/aws_s3_helper@development
+        uses: qualcomm/fastrpc/.github/actions/aws_s3_helper@multi-target-support
         with:
           s3_bucket: qli-prd-fastrpc-gh-artifacts
           # local_file points to the list of files to upload
