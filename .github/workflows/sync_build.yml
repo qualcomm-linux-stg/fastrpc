@@ -21,6 +21,10 @@ on:
         description: Firmware identifier
         type: string
         required: true
+      target:
+        description: target identifier
+        type: string
+        required: true
 
 jobs:
   build:
@@ -46,6 +50,7 @@ jobs:
         with:
           machine: ${{ inputs.machine }}
           firmware: ${{ inputs.firmware }}
+          target: ${{ inputs.target }}
 
       - name: Build workspace
         id: build_workspace

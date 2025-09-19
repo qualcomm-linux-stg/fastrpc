@@ -18,6 +18,10 @@ inputs:
     description: Firmware identifier
     type: string
     required: true
+  target:
+    description: target identifier
+    type: string
+    required: true
 
 outputs:
   workspace_path:
@@ -48,7 +52,7 @@ runs:
         cd hexagon-dsp-binaries
         git fetch --all --tags --prune
 
-        TARGET="${{ inputs.firmware }}"
+        TARGET="${{ inputs.target }}"
         DSP_REF=""
         CONFIG="config.txt"
 
@@ -58,8 +62,9 @@ runs:
           exit 1
         fi
         while read -r _ subdir dsp version; do
-          echo "DSP binaries for $dsp in $subdir - $version" 
-          if [[ "${subdir,,}" == */"${TARGET,,}" ]]; then
+          echo "DSP binaries for $dsp in $subdir - $version"
+          # match anywhere in the path 
+          if [[ "${subdir,,}" == *"${TARGET,,}/"* ]]; then 
             echo "Found matching DSP binaries for target '$TARGET': $subdir - $version"
             echo "Copying DSP binaries for $dsp in $subdir/$version"
             mkdir -p "../firmware_dir/usr/lib/dsp/${dsp}"
@@ -76,9 +81,7 @@ runs:
       run: |
         cd ${{ github.workspace }}
         git clone https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
-        TARGET_RAW="${{ inputs.firmware }}"
-        # Remove "-ride" suffix if present
-        TARGET="${TARGET_RAW%-ride}"
+        TARGET="${{ inputs.target }}"
 
         # Construct the source path for qcom firmware in the cloned linux-firmware repo
         # It's usually under <cloned_repo_root>/qcom/<target>
