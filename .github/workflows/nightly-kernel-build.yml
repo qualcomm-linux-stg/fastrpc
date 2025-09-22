@@ -14,15 +14,17 @@ jobs:
   build-and-upload:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout workflow code
+      # Checkout fastrpc-image repository to get the Dockerfile
+      - name: Checkout fastrpc-image repo for Dockerfile
         uses: actions/checkout@v4
-        # Checks out the current repository for access to local actions
+        with:
+          fetch-depth: 0
+          repository: qualcomm/fastrpc-image
+          ref: main
 
       - name: Build fastrpc docker image
-        uses: qualcomm-linux-stg/fastrpc/.github/actions/build_docker_image@development
-        with:
-          image: fastrpc-image:latest
-        # Builds and tags the Docker image needed for kernel build
+        run: |
+          docker build -t fastrpc-image:latest -f Dockerfile .
 
       - name: Configure git
         shell: bash
