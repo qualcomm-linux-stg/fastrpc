@@ -19,10 +19,11 @@ jobs:
         # Checks out the current repository for access to local actions
 
       - name: Build fastrpc docker image
-        uses: ./.github/actions/build_docker_image
+        uses: qualcomm-linux-stg/fastrpc/.github/actions/build_docker_image@development
         with:
           image: fastrpc-image:latest
         # Builds and tags the Docker image needed for kernel build
+
       - name: Configure git
         shell: bash
         run: |
