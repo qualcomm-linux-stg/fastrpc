@@ -10,7 +10,7 @@ description: |
   directory.
 
 inputs:
-  linux-firmware:
+  linux_firmware:
     description: Linux Firmware identifier
     type: string
     required: true
@@ -76,17 +76,17 @@ runs:
       shell: bash
       run: |
         cd ${{ github.workspace }}
-        git clone https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
+        git clone https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux_firmware.git
         TARGET="${{ inputs.target }}"
-        LINUX_FIRMWARE="${{ inputs.linux-firmware }}"
+        LINUX_FIRMWARE="${{ inputs.linux_firmware }}"
 
-        # Construct the source path for qcom firmware in the cloned linux-firmware repo
+        # Construct the source path for qcom firmware in the cloned linux_firmware repo
         # It's usually under <cloned_repo_root>/qcom/<target>
-        LINUX_FIRMWARE_QCOM_PATH="linux-firmware/qcom/${TARGET}"
+        LINUX_FIRMWARE_QCOM_PATH="linux_firmware/qcom/${TARGET}"
 
         # Check if the target qcom firmware directory exists in the cloned repo
         if [ ! -d "$LINUX_FIRMWARE_QCOM_PATH" ]; then
-          echo "ERROR: Directory '$LINUX_FIRMWARE_QCOM_PATH' not found in linux-firmware repo."
+          echo "ERROR: Directory '$LINUX_FIRMWARE_QCOM_PATH' not found in linux_firmware repo."
           exit -1
         else
           # Create the destination directory in firmware_dir

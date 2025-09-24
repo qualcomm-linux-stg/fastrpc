@@ -39,11 +39,11 @@ runs:
               typeof item === 'object' && item !== null &&
               'machine' in item && 'firmware' in item && 'lavaname' in item && 'target' in item
             )
-            .map(({ machine, firmware, lavaname, linux-firmware, target }) => ({
+            .map(({ machine, firmware, lavaname, linux_firmware, target }) => ({
               machine,
               firmware,
               lavaname,
-              linux-firmware,
+              linux_firmware,
               target
             }));
 
