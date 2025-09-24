@@ -76,7 +76,7 @@ runs:
       shell: bash
       run: |
         cd ${{ github.workspace }}
-        git clone https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux_firmware.git
+        git clone https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
         TARGET="${{ inputs.target }}"
         LINUX_FIRMWARE="${{ inputs.linux_firmware }}"
 
