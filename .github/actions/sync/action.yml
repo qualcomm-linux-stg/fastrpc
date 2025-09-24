@@ -80,9 +80,9 @@ runs:
         TARGET="${{ inputs.target }}"
         LINUX_FIRMWARE="${{ inputs.linux_firmware }}"
 
-        # Construct the source path for qcom firmware in the cloned linux_firmware repo
+        # Construct the source path for qcom firmware in the cloned linux-firmware repo
         # It's usually under <cloned_repo_root>/qcom/<target>
-        LINUX_FIRMWARE_QCOM_PATH="linux_firmware/qcom/${TARGET}"
+        LINUX_FIRMWARE_QCOM_PATH="linux-firmware/qcom/${TARGET}"
 
         # Check if the target qcom firmware directory exists in the cloned repo
         if [ ! -d "$LINUX_FIRMWARE_QCOM_PATH" ]; then
