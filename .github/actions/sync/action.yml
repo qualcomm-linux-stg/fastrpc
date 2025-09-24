@@ -10,12 +10,8 @@ description: |
   directory.
 
 inputs:
-  machine:
-    description: Target machine name
-    type: string
-    required: true
-  firmware:
-    description: Firmware identifier
+  linux-firmware:
+    description: Linux Firmware identifier
     type: string
     required: true
   target:
@@ -82,7 +78,7 @@ runs:
         cd ${{ github.workspace }}
         git clone https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
         TARGET="${{ inputs.target }}"
-        MACHINE=$(echo "${{ inputs.machine }}" | cut -d'-' -f1)
+        LINUX_FIRMWARE="${{ inputs.linux-firmware }}"
 
         # Construct the source path for qcom firmware in the cloned linux-firmware repo
         # It's usually under <cloned_repo_root>/qcom/<target>
@@ -94,12 +90,12 @@ runs:
           exit -1
         else
           # Create the destination directory in firmware_dir
-          mkdir -p "${{ github.workspace }}/firmware_dir/usr/lib/firmware/qcom/${MACHINE}"
+          mkdir -p "${{ github.workspace }}/firmware_dir/usr/lib/firmware/qcom/${LINUX_FIRMWARE}"
           
           # Copy the contents of the qcom target directory
           # Use trailing slashes to copy contents, not the directory itself
-          cp -rf "${LINUX_FIRMWARE_QCOM_PATH}/"* "${{ github.workspace }}/firmware_dir/usr/lib/firmware/qcom/${MACHINE}/"
-          echo "Copied QCOM firmware from '${LINUX_FIRMWARE_QCOM_PATH}' to '${{ github.workspace }}/firmware_dir/usr/lib/firmware/qcom/${MACHINE}/' successfully!"
+          cp -rf "${LINUX_FIRMWARE_QCOM_PATH}/"* "${{ github.workspace }}/firmware_dir/usr/lib/firmware/qcom/${LINUX_FIRMWARE}/"
+          echo "Copied QCOM firmware from '${LINUX_FIRMWARE_QCOM_PATH}' to '${{ github.workspace }}/firmware_dir/usr/lib/firmware/qcom/${LINUX_FIRMWARE}/' successfully!"
         fi
 
     - name: List all subdirectories and files in firmware_dir

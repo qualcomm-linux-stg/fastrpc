@@ -41,7 +41,7 @@ jobs:
     with:
       docker_image: fastrpc-image:latest
       machine: ${{ matrix.machine }}
-      firmware: ${{ matrix.firmware }}
+      linux-firmware: ${{ matrix.linux-firmware }}
       target: ${{ matrix.target }}
 
   # The test job will run on the machines specified in the full_matrix output

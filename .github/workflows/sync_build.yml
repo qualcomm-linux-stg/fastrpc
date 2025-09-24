@@ -17,8 +17,8 @@ on:
         description: Target machine name
         type: string
         required: true
-      firmware:
-        description: Firmware identifier
+      linux-firmware:
+        description: Linux Firmware identifier
         type: string
         required: true
       target:
@@ -48,8 +48,7 @@ jobs:
         id: sync
         uses: qualcomm-linux-stg/fastrpc/.github/actions/sync@multi-target-support
         with:
-          machine: ${{ inputs.machine }}
-          firmware: ${{ inputs.firmware }}
+          linux-firmware: ${{ inputs.linux-firmware }}
           target: ${{ inputs.target }}
 
       - name: Build workspace

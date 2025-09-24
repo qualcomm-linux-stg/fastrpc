@@ -59,7 +59,6 @@ jobs:
         with:
           docker_image: ${{ inputs.docker_image }}
         env:
-          FIRMWARE: ${{ matrix.build_matrix.firmware }}
           MACHINE: ${{ matrix.build_matrix.machine }}
           LAVA_NAME: ${{ matrix.build_matrix.lavaname }}
 
