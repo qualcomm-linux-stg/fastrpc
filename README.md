@@ -1,4 +1,4 @@
-# FastRPC-stg
+# FastRPC
 
 ## Introduction
 
