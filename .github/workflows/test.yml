@@ -22,11 +22,16 @@ on:
         type: string
         required: true
 
+      full_matrix:
+        description: Full matrix containing lava description
+        type: string
+        required: true
+
 jobs:
   test:
     runs-on:
-      group: GHA-FastRPC-Stg-SelfHosted-RG
-      labels: [ self-hosted, fastrpc-stg-u2404-x64-large-od-ephem ]
+      group: GHA-fastrpc-Prd-SelfHosted-RG
+      labels: [ self-hosted, fastrpc-prd-u2404-x64-large-od-ephem ]
     strategy:
       fail-fast: false
       matrix:
@@ -39,7 +44,7 @@ jobs:
           fetch-depth: 0
 
       - name: Build fastrpc docker image
-        uses: qualcomm-linux-stg/fastrpc/.github/actions/build_docker_image@multi-target-support
+        uses: qualcomm/fastrpc/.github/actions/build_docker_image@development
         with:
           image: ${{ inputs.docker_image }}
 
@@ -53,14 +58,33 @@ jobs:
       - name: Clone lava job render scripts
         run: cd .. && git clone https://github.com/qualcomm-linux/job_render
 
+      - name: Extract the LAVA machine name
+        id: get_lavaname
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fullMatrix = JSON.parse(`${{ inputs.full_matrix }}`);
+            const currentMachine = `${{ matrix.build_matrix.machine }}`;
+
+            const entry = fullMatrix.find(item => item.machine === currentMachine);
+            if (!entry) {
+              core.setFailed(`No entry found in full matrix for machine: ${currentMachine}`);
+              return;
+            }
+
+            const lavaname = entry.lavaname;
+            console.log(`Lavaname for ${currentMachine} is ${lavaname}`);
+            core.setOutput("LAVANAME", lavaname);
+
       - name: Create fastrpc - lava job definition
-        uses: qualcomm-linux-stg/fastrpc/.github/actions/lava_job_render@multi-target-support
+        uses: qualcomm/fastrpc/.github/actions/lava_job_render@development
         id: create_job_definition
         with:
           docker_image: ${{ inputs.docker_image }}
         env:
+          FIRMWARE: ${{ matrix.build_matrix.firmware }}
           MACHINE: ${{ matrix.build_matrix.machine }}
-          LAVA_NAME: ${{ matrix.build_matrix.lavaname }}
+          LAVA_NAME: ${{ steps.get_lavaname.outputs.LAVANAME }}
 
       - name: Submit lava job
         id: submit_job
