@@ -17,16 +17,20 @@ on:
         description: Target machine name
         type: string
         required: true
-      firmware:
-        description: Firmware identifier
+      linux_firmware:
+        description: Linux Firmware identifier
+        type: string
+        required: true
+      target:
+        description: target identifier
         type: string
         required: true
 
 jobs:
   build:
     runs-on:
-      group: GHA-fastrpc-Prd-SelfHosted-RG
-      labels: [ self-hosted, fastrpc-prd-u2404-x64-large-od-ephem ] 
+      group: GHA-FastRPC-Stg-SelfHosted-RG
+      labels: [ self-hosted, fastrpc-stg-u2404-x64-large-od-ephem ] 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -36,20 +40,20 @@ jobs:
           fetch-depth: 1
 
       - name: Build fastrpc docker image
-        uses: qualcomm/fastrpc/.github/actions/build_docker_image@development
+        uses: qualcomm-linux-stg/fastrpc/.github/actions/build_docker_image@multi-target-support
         with:
           image: ${{ inputs.docker_image }}
 
       - name: Sync codebase
         id: sync
-        uses: qualcomm/fastrpc/.github/actions/sync@development
+        uses: qualcomm-linux-stg/fastrpc/.github/actions/sync@multi-target-support
         with:
-          machine: ${{ inputs.machine }}
-          firmware: ${{ inputs.firmware }}
+          linux_firmware: ${{ inputs.linux_firmware }}
+          target: ${{ inputs.target }}
 
       - name: Build workspace
         id: build_workspace
-        uses: qualcomm/fastrpc/.github/actions/build@development
+        uses: qualcomm-linux-stg/fastrpc/.github/actions/build@multi-target-support
         with:
           docker_image: ${{ inputs.docker_image }}
           workspace_path: ${{ steps.sync.outputs.workspace_path }}
@@ -75,9 +79,9 @@ jobs:
           cat "$workspace/artifacts/file_list.txt"
 
       - name: Upload artifacts
-        uses: qualcomm/fastrpc/.github/actions/aws_s3_helper@development
+        uses: qualcomm-linux-stg/fastrpc/.github/actions/aws_s3_helper@multi-target-support
         with:
-          s3_bucket: qli-prd-fastrpc-gh-artifacts
+          s3_bucket: qli-stg-fastrpc-gh-artifacts
           # local_file points to the list of files to upload
           local_file: ${{ steps.sync.outputs.workspace_path }}/artifacts/file_list.txt
           mode: multi-upload
