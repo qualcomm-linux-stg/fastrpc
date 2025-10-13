@@ -1,4 +1,4 @@
-# FastRPC staging
+# FastRPC
 
 
 ## Introduction
