@@ -64,7 +64,7 @@ runs:
         while read -r _ subdir dsp version; do
           echo "DSP binaries for $dsp in $subdir - $version"
           # match anywhere in the path 
-          if [[ "${subdir,,}" == */"${TARGET,,}" ]]; then 
+          if [[ "${subdir,,}" == *"${TARGET,,}/"* ]]; then 
             echo "Found matching DSP binaries for target '$TARGET': $subdir - $version"
             echo "Copying DSP binaries for $dsp in $subdir/$version"
             mkdir -p "../firmware_dir/usr/lib/dsp/${dsp}"
