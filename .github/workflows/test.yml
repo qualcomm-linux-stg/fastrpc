@@ -46,7 +46,7 @@ jobs:
       - name: Download URLs list
         uses: actions/download-artifact@v4
         with:
-          name: presigned_urls_${{ matrix.build_matrix.machine }}.json
+          name: presigned_urls_${{ matrix.build_matrix.deviceTree }}.json
           merge-multiple: true
           path: ${{ github.workspace }}
 
@@ -59,9 +59,9 @@ jobs:
         with:
           docker_image: ${{ inputs.docker_image }}
         env:
-          FIRMWARE: ${{ matrix.build_matrix.firmware }}
-          MACHINE: ${{ matrix.build_matrix.machine }}
-          LAVA_NAME: ${{ matrix.build_matrix.lavaname }}
+          FIRMWARE: ${{ matrix.build_matrix.linuxFirmware }}
+          DEVICE_TREE: ${{ matrix.build_matrix.deviceTree }}
+          LAVA_DEVICE_NAME: ${{ matrix.build_matrix.lavaDeviceName }}
 
       - name: Submit lava job
         id: submit_job

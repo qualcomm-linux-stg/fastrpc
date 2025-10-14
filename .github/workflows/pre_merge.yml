@@ -41,7 +41,7 @@ jobs:
       docker_image: fastrpc-image:latest
       deviceTree: ${{ matrix.deviceTree }}
       linuxFirmware: ${{ matrix.linuxFirmware }}
-      dspHexBinary: ${{ matrix.dspHexBinary }}
+      hexDSPBinary: ${{ matrix.hexDSPBinary }}
 
   # The test job will run on the machines specified in the build_matrix output
   # from the loading job. It will use the test.yml workflow to run tests.
