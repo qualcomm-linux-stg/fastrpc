@@ -1,4 +1,12 @@
 {
-    "qcs9100-ride-r3": ["sa8775p-ride", "qcs9100-ride"],
-    "qcs8300-ride": ["qcs8300-ride", "qcs8300-ride"]
+  "qcs9100-ride-r3": {
+    "machine": "qcs9100-ride-r3",
+    "firmware": "sa8775p-ride",
+    "lavaname": "qcs9100-ride"
+  },
+  "qcs8300-ride": {
+    "machine": "qcs8300-ride",
+    "firmware": "qcs8300-ride",
+    "lavaname": "qcs8300-ride"
+  }
 }
