@@ -20,7 +20,8 @@ on:
     branches:
     - 'main'
     - 'development'
-  
+    paths-ignore:
+    - '.github/**'
 
 jobs:
 
