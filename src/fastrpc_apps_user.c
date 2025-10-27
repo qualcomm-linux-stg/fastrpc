@@ -4040,7 +4040,6 @@ static int domain_init(int domain, int *dev) {
                 ret == (int)(DSP_AEE_EOFFSET + AEE_EUNSUPPORTED),
             ret);
   }
-#ifdef PD_EXCEPTION_LOGGING
   if ((dom != SDSP_DOMAIN_ID) && hlist[domain].dsppd == ROOT_PD) {
     remote_handle64 handle = 0;
     handle = get_adspmsgd_adsp1_handle(domain);
@@ -4048,7 +4047,6 @@ static int domain_init(int domain, int *dev) {
       adspmsgd_init(handle, 0x10); // enable PD exception logging
     }
   }
-#endif
   fastrpc_perf_init(hlist[domain].dev, domain);
   VERIFY(AEE_SUCCESS ==
          (nErr = fastrpc_latency_init(hlist[domain].dev, &hlist[domain].qos)));
