@@ -4040,13 +4040,6 @@ static int domain_init(int domain, int *dev) {
                 ret == (int)(DSP_AEE_EOFFSET + AEE_EUNSUPPORTED),
             ret);
   }
-  if ((dom != SDSP_DOMAIN_ID) && hlist[domain].dsppd == ROOT_PD) {
-    remote_handle64 handle = 0;
-    handle = get_adspmsgd_adsp1_handle(domain);
-    if (handle != INVALID_HANDLE) {
-      adspmsgd_init(handle, 0x10); // enable PD exception logging
-    }
-  }
   fastrpc_perf_init(hlist[domain].dev, domain);
   VERIFY(AEE_SUCCESS ==
          (nErr = fastrpc_latency_init(hlist[domain].dev, &hlist[domain].qos)));
@@ -4057,6 +4050,13 @@ static int domain_init(int domain, int *dev) {
   VERIFY(AEE_SUCCESS == (nErr = listener_android_domain_init(
                              domain, hlist[domain].th_params.update_requested,
                              &hlist[domain].th_params.r_sem)));
+  if ((dom != SDSP_DOMAIN_ID) && hlist[domain].dsppd == ROOT_PD) {
+    remote_handle64 handle = 0;
+    handle = get_adspmsgd_adsp1_handle(domain);
+    if (handle != INVALID_HANDLE) {
+      adspmsgd_init(handle, 0x10); // enable PD exception logging
+    }
+  }
 bail:
   if (nErr != AEE_SUCCESS) {
     domain_deinit(domain);
