@@ -4169,6 +4169,7 @@ static int fastrpc_apps_user_init(void) {
 
   VERIFY(AEE_SUCCESS == (nErr = PL_INIT(gpls)));
   VERIFY(AEE_SUCCESS == (nErr = PL_INIT(rpcmem)));
+  VERIFY(AEE_SUCCESS == (nErr = pthread_key_create(&tlsKey, exit_thread)));
   fastrpc_mem_init();
   fastrpc_context_table_init();
   fastrpc_log_init();
@@ -4199,7 +4200,6 @@ static int fastrpc_apps_user_init(void) {
     pthread_mutex_init(&hlist[i].async_init_deinit_mut, 0);
   }
   listener_android_init();
-  VERIFY(AEE_SUCCESS == (nErr = pthread_key_create(&tlsKey, exit_thread)));
   VERIFY(AEE_SUCCESS == (nErr = PL_INIT(apps_std)));
   GenCrc32Tab(POLY32, crc_table);
   fastrpc_notif_init();
