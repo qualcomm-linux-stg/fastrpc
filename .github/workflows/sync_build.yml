@@ -13,12 +13,16 @@ on:
         description: Docker image
         type: string
         required: true
-      machine:
-        description: Target machine name
+      deviceTree:
+        description: device Tree name
         type: string
         required: true
-      firmware:
-        description: Firmware identifier
+      linuxFirmware:
+        description: Linux Firmware identifier
+        type: string
+        required: true
+      hexDSPBinary:
+        description: Hexagon DSP binaries identifier
         type: string
         required: true
 
@@ -44,8 +48,8 @@ jobs:
         id: sync
         uses: qualcomm/fastrpc/.github/actions/sync@development
         with:
-          machine: ${{ inputs.machine }}
-          firmware: ${{ inputs.firmware }}
+          linuxFirmware: ${{ inputs.linuxFirmware }}
+          hexDSPBinary: ${{ inputs.hexDSPBinary }}
 
       - name: Build workspace
         id: build_workspace
@@ -68,7 +72,7 @@ jobs:
           $workspace/kobj/arch/arm64/boot/Image
           $workspace/kobj/vmlinux
           $workspace/artifacts/ramdisk_fastrpc.gz
-          $workspace/kobj/arch/arm64/boot/dts/qcom/${{ inputs.machine }}.dtb
+          $workspace/kobj/arch/arm64/boot/dts/qcom/${{ inputs.deviceTree }}.dtb
           EOF
 
           echo "Generated artifact list:"
@@ -81,7 +85,7 @@ jobs:
           # local_file points to the list of files to upload
           local_file: ${{ steps.sync.outputs.workspace_path }}/artifacts/file_list.txt
           mode: multi-upload
-          machine: ${{ inputs.machine }}
+          deviceTree: ${{ inputs.deviceTree }}
 
       - name: Clean up
         # This step is crucial for self-hosted runners to manage disk space.
