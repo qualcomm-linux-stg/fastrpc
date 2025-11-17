@@ -44,6 +44,7 @@ runs:
       shell: bash
       env:
         UPLOAD_LOCATION: ${{ github.repository_owner }}/${{ github.event.repository.name }}/${{ github.workflow }}/${{ github.head_ref != '' && github.head_ref || github.run_id }}/${{ inputs.deviceTree }}/
+        GEN_UPLOAD_LOCATION: ${{ github.repository_owner }}/${{ github.event.repository.name }}/
       run: |
         echo "::group::$(printf '__________ %-100s' 'Process' | tr ' ' _)"
         case "${{ inputs.mode }}" in
@@ -78,16 +79,16 @@ runs:
             ;;
           single-upload)
             echo "Uploading single file to S3 bucket..."
-            aws s3 cp "${{ inputs.local_file }}" s3://${{ inputs.s3_bucket }}/${{ env.UPLOAD_LOCATION }}
-            echo "Uploaded ${{ inputs.local_file }} to s3://${{ inputs.s3_bucket }}/${{ env.UPLOAD_LOCATION }}"
+            aws s3 cp "${{ inputs.local_file }}" s3://${{ inputs.s3_bucket }}/${{ env.GEN_UPLOAD_LOCATION }}
+            echo "Uploaded ${{ inputs.local_file }} to s3://${{ inputs.s3_bucket }}/${{ env.GEN_UPLOAD_LOCATION }}"
             echo "Creating Pre-signed URL for ${{ inputs.local_file }}..."
-            presigned_url=$(aws s3 presign s3://${{ inputs.s3_bucket }}/${{ env.UPLOAD_LOCATION }}${{ inputs.local_file }} --expires-in ${{ inputs.retention_days }})
+            presigned_url=$(aws s3 presign s3://${{ inputs.s3_bucket }}/${{ env.GEN_UPLOAD_LOCATION }}${{ inputs.local_file }} --expires-in ${{ inputs.retention_days }})
             echo "presigned_url=${presigned_url}" >> "$GITHUB_OUTPUT"
             ;;
           download)
             #Download The required file from s3
             echo "Downloading files from S3 bucket..."
-            aws s3 cp s3://${{ inputs.s3_bucket }}/${{ inputs.download_file }} ${{ inputs.download_location }}
+            aws s3 cp s3://${{ inputs.s3_bucket }}/${{ env.GEN_UPLOAD_LOCATION }}/${{ inputs.download_file }} ${{ inputs.download_location }}
             ;;
           *)
             echo "Invalid mode. Use 'upload' or 'download'."
