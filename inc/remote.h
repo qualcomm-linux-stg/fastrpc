@@ -279,7 +279,7 @@ struct remote_rpc_control_latency {
  * after which it will timeout and fall back to waiting for a glink response.
  * Max value that can be passed is 10000 (10 ms)
  */
-    uint32_t latency;
+    uint64_t latency;
 };
 
 /**
