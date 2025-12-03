@@ -18,7 +18,7 @@ The following diagram depicts the major FastRPC software components on the CPU a
 
 **Definition of the terms in the diagram:**
 
-![Term Definitions](Docs/images/Term_definitions.png)
+![Term Definitions](Docs/images/Term_definitions.png) 
 
 ### FastRPC Workflow
 
