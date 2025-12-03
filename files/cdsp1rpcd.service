@@ -1,0 +1,14 @@
+[Unit]
+Description=cDSP RPC daemon
+After=dev-fastrpc-cdsp1.device dev-fastrpc-cdsp1-secure.device
+ConditionPathExists=|/dev/fastrpc-cdsp1
+ConditionPathExists=|/dev/fastrpc-cdsp1-secure
+
+[Service]
+Type=exec
+ExecStart=/usr/bin/cdsprpcd rootpd cdsp1
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
