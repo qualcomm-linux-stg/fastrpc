@@ -158,7 +158,7 @@ typedef struct domain {
 } domain_t;
 
 /** Remote handle parameter for RPC calls */
-typedef uint32_t remote_handle;
+typedef uint64_t remote_handle;
 
 /** Remote handle parameter for multi-domain RPC calls */
 typedef uint64_t remote_handle64;
@@ -167,6 +167,7 @@ typedef uint64_t remote_handle64;
 typedef struct {
     void *pv;       /** Address of a remote buffer */
     size_t nLen;    /** Size of a remote buffer */
+	uint32_t flags; /** New field: Buffer flags */
 } remote_buf;
 
 /** 64-bit Remote buffer parameter for RPC calls */
@@ -278,7 +279,7 @@ struct remote_rpc_control_latency {
  * after which it will timeout and fall back to waiting for a glink response.
  * Max value that can be passed is 10000 (10 ms)
  */
-    uint32_t latency;
+    uint64_t latency;
 };
 
 /**
