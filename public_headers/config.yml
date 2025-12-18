@@ -1,7 +1,7 @@
 project: https://github.com/qualcomm/fastrpc
 
 branches:
-  development:
+  ayukum-test:
     modes:
       blocking:
         headers:
@@ -9,3 +9,4 @@ branches:
           - inc/remote64.h
           - inc/dspqueue.h
           - inc/rpcmem.h
+          - inc/test.h

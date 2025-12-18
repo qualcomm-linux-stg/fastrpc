@@ -30,7 +30,6 @@ enum dspqueue_packet_flags {
     DSPQUEUE_PACKET_FLAG_WAKEUP =        0x0004, /**< Early wakeup packet */
     DSPQUEUE_PACKET_FLAG_DRIVER_READY =  0x0008, /**< Packet is ready for driver consumption. Currently unused. */
     DSPQUEUE_PACKET_FLAG_USER_READY =    0x0010, /**< Packet is ready for userspace library consumption */
-    DSPQUEUE_PACKET_FLAG_RESERVED_ZERO = 0xffe0
 };
 
 /**
@@ -72,6 +71,7 @@ typedef enum {
 	 * on each endpoint.
 	 */
 	DSPQUEUE_CREATE,
+        test
 } dspqueue_request_req_id;
 
 /** Signaling performance level: Reduced signaling for polling clients. */
@@ -191,6 +191,7 @@ typedef struct dspqueue_request_payload {
 	/* Request payload */
 	union {
 		dspqueue_create_req create;
+                test;
 	};
 } dspqueue_request_payload;
 
