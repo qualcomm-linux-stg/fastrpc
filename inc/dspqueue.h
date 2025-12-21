@@ -39,7 +39,6 @@ enum dspqueue_buffer_flags {
     /* 1 and 2 reserved */
     DSPQUEUE_BUFFER_FLAG_REF =                  0x00000004, /**< Add a reference to a previously mapped buffer */
     DSPQUEUE_BUFFER_FLAG_DEREF =                0x00000008, /**< Remove a reference from a previously mapped buffer */
-    DSPQUEUE_BUFFER_FLAG_FLUSH_SENDER =         0x00000010, /**< Flush buffer from sender caches */
     DSPQUEUE_BUFFER_FLAG_INVALIDATE_SENDER =    0x00000020, /**< Invalidate buffer from sender caches */
     DSPQUEUE_BUFFER_FLAG_FLUSH_RECIPIENT =      0x00000040, /**< Flush buffer from recipient caches */
     DSPQUEUE_BUFFER_FLAG_INVALIDATE_RECIPIENT = 0x00000080, /**< Invalidate buffer from recipient caches */
@@ -107,8 +106,6 @@ struct dspqueue_buffer {
                           to zero when writing packets; in this case the
                           framework will set the field to the size of the
                           buffer as mapped. */
-    uint32_t offset; /**< Offset within the buffer in bytes as allocated and mapped.
-                          The virtual address #ptr includes the offset */
     uint32_t flags;  /**< Buffer flags, see enum #dspqueue_buffer_flags */
     union {
         void *ptr;   /**< Buffer virtual address; NULL if not mapped in the local context */
