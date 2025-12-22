@@ -508,7 +508,6 @@ typedef struct remote_rpc_notif_register {
  * in remote session control interface
  **/
 struct remote_rpc_pd_initmem_size {
-    int domain;                      /** Remote subsystem domain ID, pass -1 to set params for all domains **/
     uint32_t pd_initmem_size;        /** Initial memory allocated for remote userpd, minimum value : 3MB, maximum value 200MB **/
                                      /** Unsupported for unsigned user PD, for unsigned user PD init mem size is fixed at 5MB **/
 };
