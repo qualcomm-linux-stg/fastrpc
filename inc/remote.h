@@ -302,8 +302,6 @@ typedef struct remote_dsp_capability {
  * remote_dsp_capability. DSP capability will be returned on variable 'capability'.
  */
 enum remote_dsp_attributes {
-    DOMAIN_SUPPORT,               /** Check if DSP supported: supported = 1,
-                                     unsupported = 0 */
     UNSIGNED_PD_SUPPORT,          /** DSP unsigned PD support: supported = 1,
                                      unsupported = 0 */
     HVX_SUPPORT_64B,              /** Number of HVX 64B support */
@@ -340,7 +338,7 @@ struct remote_rpc_control_wakelock {
  * remote_handle_control() API returns default domain ID
  */
 typedef struct remote_rpc_get_domain {
-    int domain;         /** @param[out]: domain ID associcated with handle */
+    int a;
 } remote_rpc_get_domain_t;
 
 /**
