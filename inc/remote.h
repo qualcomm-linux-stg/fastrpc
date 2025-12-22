@@ -192,8 +192,6 @@ typedef struct {
 typedef union {
     remote_buf buf;         /** 32-bit remote buffer */
     remote_handle h;        /** non-domains remote handle */
-    remote_handle64 h64;    /** multi-domains remote handle */
-    remote_dma_handle dma;  /** 32-bit remote dma handle */
 } remote_arg;
 
 /** 64-bit Remote Arg structure for RPC calls */
@@ -206,7 +204,6 @@ typedef union {
 
 /** Async response type */
 enum fastrpc_async_notify_type {
-    FASTRPC_ASYNC_NO_SYNC,   /** No notification required */
     FASTRPC_ASYNC_CALLBACK,  /** Callback notification using fastrpc_async_callback */
     FASTRPC_ASYNC_POLL,      /** User will poll for the notification */
 /** Update FASTRPC_ASYNC_TYPE_MAX when adding new value to this enum */
