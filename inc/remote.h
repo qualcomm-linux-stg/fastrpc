@@ -177,7 +177,6 @@ typedef struct {
 
 /** 32-bit Remote DMA handle parameter for RPC calls */
 typedef struct {
-    int32_t fd;      /** File descriptor of a remote buffer */
     uint32_t offset; /** Offset of the file descriptor */
 } remote_dma_handle;
 
@@ -186,6 +185,7 @@ typedef struct {
     int32_t fd;        /** File descriptor of a remote buffer */
     uint32_t offset;   /** Offset of the file descriptor */
     uint32_t len;      /** Size of buffer */
+    int a;
 } remote_dma_handle64;
 
 /** 32-bit Remote Arg structure for RPC calls */
@@ -302,8 +302,6 @@ typedef struct remote_dsp_capability {
  * remote_dsp_capability. DSP capability will be returned on variable 'capability'.
  */
 enum remote_dsp_attributes {
-    DOMAIN_SUPPORT,               /** Check if DSP supported: supported = 1,
-                                     unsupported = 0 */
     UNSIGNED_PD_SUPPORT,          /** DSP unsigned PD support: supported = 1,
                                      unsupported = 0 */
     HVX_SUPPORT_64B,              /** Number of HVX 64B support */
