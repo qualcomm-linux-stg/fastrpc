@@ -40,6 +40,7 @@ noinst_HEADERS = \
 	fastrpc_cap.h \
 	fastrpc_common.h \
 	fastrpc_config.h \
+	fastrpc_config_parser.h \
 	fastrpc_context.h \
 	fastrpc_hash_table.h \
 	fastrpc_internal.h \
