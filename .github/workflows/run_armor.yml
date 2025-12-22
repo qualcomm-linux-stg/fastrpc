@@ -10,6 +10,7 @@
 # 4. Executes the ARMOR tool with the collected parameters to perform API compatibility checks and header validation
 
 name: Run ARMOR via action
+
 on:
   push:
     branches: [ main, development, ayukum-test, ravali-test ]
