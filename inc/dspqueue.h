@@ -105,7 +105,6 @@ struct dspqueue_buffer {
                           to zero when writing packets; in this case the
                           framework will set the field to the size of the
                           buffer as mapped. */
-    uint32_t flags;  /**< Buffer flags, see enum #dspqueue_buffer_flags */
     union {
         void *ptr;   /**< Buffer virtual address; NULL if not mapped in the local context */
         uint64_t address;
