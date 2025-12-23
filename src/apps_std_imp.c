@@ -1043,7 +1043,7 @@ int fopen_from_dirlist(const char *dirList, const char *delim,
 
     // Append domain to path
     absNameLen =
-        strlen(dirName) + strlen(name) + 2 + strlen("adsp") + 1;
+        strlen(dirName) + strlen(name) + 2 + strlen(SUBSYSTEM_NAME[domain]) + 1;
     VERIFYC(NULL != (absName = (char *)malloc(sizeof(char) * absNameLen)),
             AEE_ENOMEMORY);
     if ('\0' != *dirName) {
