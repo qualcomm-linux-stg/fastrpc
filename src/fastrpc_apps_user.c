@@ -3457,9 +3457,7 @@ static int open_shell(int domain_id, apps_std_FILE *fh, int unsigned_shell) {
   strlcpy(shell_absName, shell_name, shell_absNameLen);
   strlcat(shell_absName, domain_str, shell_absNameLen);
 
-  FARF(ALWAYS, "trying to open shell %s from DSP_LIBS_LOCATION %s", shell_absName, DSP_LIBS_LOCATION);
   strlcpy(dir_list, DSP_LIBS_LOCATION, sizeof(dir_list));
-  FARF(ALWAYS, "trying to open shell %s from dir_list %s", shell_absName, dir_list);
   nErr = fopen_from_dirlist(dir_list, ";", "r", shell_absName, fh);
 
   if (nErr) {
