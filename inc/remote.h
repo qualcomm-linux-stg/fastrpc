@@ -433,7 +433,7 @@ struct remote_rpc_session_close {
  * This is used to enable/disable PD dump for userPDs on the DSP
  **/
 struct remote_rpc_control_pd_dump {
-    int domain;            /** Remote subsystem domain ID, -1 to set params for all domains */
+    
     int enable;            /** Enable PD dump of user PD on the DSP */
 };
 
