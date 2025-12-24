@@ -1,9 +1,20 @@
+# This GitHub Actions workflow runs the ARMOR security scanning tool under the following conditions:
+# - On push events to 'main' and 'development' branches
+# - On pull_request_target events for 'main' and 'development' branches (to handle forked PRs)
+# - Manually via workflow_dispatch with required inputs (branch-name, head-sha, base-sha)
+#
+# The workflow:
+# 1. Sets appropriate permissions for repository access and status reporting
+# 2. Checks out the repository code
+# 3. Dynamically determines event context (head/base SHAs, branch name) across all trigger types
+# 4. Executes the ARMOR tool with the collected parameters to perform API compatibility checks and header validation
+
 name: Run ARMOR via action
 on:
   push:
-    branches: [ main, development, ayukum-test, ravali-test ]
+    branches: [ main, development, ayukum-test ]
   pull_request_target:
-    branches: [ main, development, ayukum-test, ravali-test ]
+    branches: [ main, development, ayukum-test ]
   workflow_dispatch:
     inputs:
       branch-name:
@@ -19,8 +30,6 @@ on:
         required: true
         type: string
 
-
-
 permissions:
   contents: read
   pull-requests: write
@@ -28,7 +37,9 @@ permissions:
 
 jobs:
   RUN-ARMOR:
-    runs-on: ubuntu-22.04
+    runs-on:
+      group: GHA-fastrpc-stg-SelfHosted-RG
+      labels: [ self-hosted, fastrpc-stg-u2404-x64-large-od-ephem ]
     steps:
       - uses: actions/checkout@v4
       - name: Set event variables
