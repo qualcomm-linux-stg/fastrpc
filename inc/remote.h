@@ -398,7 +398,7 @@ struct remote_rpc_control_unsigned_module {
  * in remote session control interface
  **/
 struct remote_rpc_relative_thread_priority {
-    int domain;                     /** Remote subsystem domain ID, pass -1 to update priority for all domains */
+
     int relative_thread_priority;   /** the value by which the default thread priority needs to increase/decrease
                                      * DSP thread priorities run from 1 to 255 with 1 being the highest thread priority.
                                      * So a negative relative thread priority value will 'increase' the thread priority,
