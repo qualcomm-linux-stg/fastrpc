@@ -192,7 +192,7 @@ void rpcmem_free(void* po);
  * @param[in] po  Data pointer for an RPCMEM-allocated buffer.
  * @return        Buffer file descriptor.
  */
-int rpcmem_to_fd(void* po);
+
 
 /**
  * @}
