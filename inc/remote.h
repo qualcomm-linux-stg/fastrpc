@@ -177,7 +177,7 @@ typedef struct {
 
 /** 32-bit Remote DMA handle parameter for RPC calls */
 typedef struct {
-    int32_t fd;      /** File descriptor of a remote buffer */
+
     uint32_t offset; /** Offset of the file descriptor */
 } remote_dma_handle;
 
@@ -207,7 +207,6 @@ typedef union {
 /** Async response type */
 enum fastrpc_async_notify_type {
     FASTRPC_ASYNC_NO_SYNC,   /** No notification required */
-    FASTRPC_ASYNC_CALLBACK,  /** Callback notification using fastrpc_async_callback */
     FASTRPC_ASYNC_POLL,      /** User will poll for the notification */
 /** Update FASTRPC_ASYNC_TYPE_MAX when adding new value to this enum */
 };
