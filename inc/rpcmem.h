@@ -52,7 +52,6 @@ enum rpc_heap_ids {
  *  * Recommended for subsystems without SMMU (sDSP and mDSP)
  *  * Contiguous heap memory will be deprecated from archs after v73
  */
-       RPCMEM_HEAP_ID_CONTIG   = 22,
 /**
  *  Non-contiguous system physical memory.
  *  * Recommended for all use cases that do not require using a specific heap
