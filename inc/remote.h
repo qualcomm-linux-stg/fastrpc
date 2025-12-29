@@ -462,7 +462,6 @@ enum fastrpc_process_type {
  * @param[out]: Process_type belonging to enum fastrpc_process_type
  */
 struct remote_process_type {
-    int domain;
     int process_type;
 };
 
