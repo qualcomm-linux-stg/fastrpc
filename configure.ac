@@ -39,6 +39,15 @@ AM_PROG_CC_C_O
 
 # Checks for libraries.
 
+# Configure systemd unit directory option (--with-systemdsystemunitdir)
+AC_ARG_WITH([systemdsystemunitdir],
+  [AS_HELP_STRING([--with-systemdsystemunitdir=DIR],
+                  [Directory for systemd service files (default: /lib/systemd/system)])],
+  [systemdsystemunitdir="$withval"],
+  [systemdsystemunitdir="/lib/systemd/system"])
+AC_MSG_NOTICE([systemd unit directory: $systemdsystemunitdir])
+AC_SUBST([systemdsystemunitdir])
+
 # Checks for typedefs, structures, and compiler characteristics.
 
 # Checks for library functions.
@@ -68,5 +77,6 @@ Makefile
 inc/Makefile
 src/Makefile
 test/Makefile
+files/Makefile
 ])
 AC_OUTPUT

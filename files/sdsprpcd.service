@@ -1,0 +1,14 @@
+[Unit]
+Description=sDSP RPC daemon
+After=dev-fastrpc-sdsp.device dev-fastrpc-sdsp-secure.device
+ConditionPathExists=|/dev/fastrpc-sdsp
+ConditionPathExists=|/dev/fastrpc-sdsp-secure
+
+[Service]
+Type=exec
+ExecStart=/usr/bin/sdsprpcd
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

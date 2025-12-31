@@ -1,0 +1,13 @@
+# Systemd service files
+
+# Define systemd unit directory
+systemdsystemunitdir = @systemdsystemunitdir@
+
+# List of systemd service files to install
+dist_systemdsystemunit_DATA = \
+	adsprpcd.service \
+	cdsprpcd.service \
+	cdsp1rpcd.service \
+	gdsp0rpcd.service \
+	gdsp1rpcd.service \
+	sdsprpcd.service

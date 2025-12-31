@@ -1,0 +1,14 @@
+[Unit]
+Description=gDSP RPC daemon
+After=dev-fastrpc-gdsp1.device dev-fastrpc-gdsp1-secure.device
+ConditionPathExists=|/dev/fastrpc-gdsp1
+ConditionPathExists=|/dev/fastrpc-gdsp1-secure
+
+[Service]
+Type=exec
+ExecStart=/usr/bin/gdsprpcd rootpd gdsp1
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
