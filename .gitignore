@@ -35,6 +35,7 @@ stamp-h1
 src/adsprpcd
 src/cdsprpcd
 src/sdsprpcd
+src/gdsprpcd
 test/fastrpc_test
 
 # make dist tarballs
