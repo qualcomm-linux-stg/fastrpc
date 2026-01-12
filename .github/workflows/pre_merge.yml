@@ -37,7 +37,7 @@ jobs:
     strategy:
       matrix:
         include: ${{ fromJSON(needs.loading.outputs.build_matrix) }}
-    uses: qualcomm-linux-stg/fastrpc/.github/workflows/sync_build.yml@development
+    uses: qualcomm-linux-stg/fastrpc/.github/workflows/sync_build.yml@Nightly-build
     secrets: inherit
     with:
       docker_image: fastrpc-image:latest

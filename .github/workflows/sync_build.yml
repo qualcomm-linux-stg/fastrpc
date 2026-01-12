@@ -53,10 +53,11 @@ jobs:
 
       - name: Build workspace
         id: build_workspace
-        uses: qualcomm-linux-stg/fastrpc/.github/actions/build@development
+        uses: qualcomm-linux-stg/fastrpc/.github/actions/build@Nightly-build
         with:
           docker_image: ${{ inputs.docker_image }}
           workspace_path: ${{ steps.sync.outputs.workspace_path }}
+          deviceTree: ${{ inputs.deviceTree }}
 
       - name: Create file list for artifacts upload
         run: |

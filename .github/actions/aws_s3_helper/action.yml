@@ -39,6 +39,7 @@ runs:
       shell: bash
       env:
         UPLOAD_LOCATION: ${{ github.repository_owner }}/${{ github.event.repository.name }}/${{ github.workflow }}/${{ github.head_ref != '' && github.head_ref || github.run_id }}/${{ inputs.deviceTree }}/
+        KERNEL_UPLOAD_LOCATION: ${{ github.repository_owner }}/${{ github.event.repository.name }}/KERNEL_ARTIFACTS/
       run: |
         echo "::group::$(printf '__________ %-100s' 'Process' | tr ' ' _)"
         case "${{ inputs.mode }}" in
@@ -73,16 +74,33 @@ runs:
             ;;
           single-upload)
             echo "Uploading single file to S3 bucket..."
-            aws s3 cp "${{ inputs.local_file }}" s3://${{ inputs.s3_bucket }}/${{ env.UPLOAD_LOCATION }}
-            echo "Uploaded ${{ inputs.local_file }} to s3://${{ inputs.s3_bucket }}/${{ env.UPLOAD_LOCATION }}"
+            # Validate local file
+            if [[ ! -f "${{ inputs.local_file }}" ]]; then
+              echo "ERROR: Local file not found: ${{ inputs.local_file }}" >&2
+              exit 1
+            fi
+            aws s3 cp "${{ inputs.local_file }}" s3://${{ inputs.s3_bucket }}/${{ env.KERNEL_UPLOAD_LOCATION }}/
+            echo "Uploaded ${{ inputs.local_file }} to s3://${{ inputs.s3_bucket }}/${{ env.KERNEL_UPLOAD_LOCATION }}"
             echo "Creating Pre-signed URL for ${{ inputs.local_file }}..."
-            presigned_url=$(aws s3 presign s3://${{ inputs.s3_bucket }}/${{ env.UPLOAD_LOCATION }}${{ inputs.local_file }} --expires-in 259200)
+            presigned_url=$(aws s3 presign s3://${{ inputs.s3_bucket }}/${{ env.KERNEL_UPLOAD_LOCATION }}${{ inputs.local_file }} --expires-in 259200)
             echo "presigned_url=${presigned_url}" >> "$GITHUB_OUTPUT"
             ;;
           download)
+            if [[ -z "${{ inputs.download_file }} " ]]; then
+              echo "ERROR: inputs.download_file must be set ${{ inputs.download_file }} ." >&2
+              exit 1
+            fi
             #Download The required file from s3
             echo "Downloading files from S3 bucket..."
-            aws s3 cp s3://${{ inputs.s3_bucket }}/${{ inputs.download_file }} ${{ inputs.download_location }}
+            # Ensure download location exists if it is a directory
+            if [[ -d "${{ inputs.download_location }}" ]]; then
+              aws s3 cp "s3://${{ inputs.s3_bucket }}/${{ env.KERNEL_UPLOAD_LOCATION }}${{ inputs.download_file }}" "${{ inputs.download_location }}"
+            else
+              # Treat as a file path; create parent directory if needed
+              mkdir -p "$(dirname "${{ inputs.download_location }}")"
+              aws s3 cp "s3://${{ inputs.s3_bucket }}/${{ env.KERNEL_UPLOAD_LOCATION }}${{ inputs.download_file }}" "${{ inputs.download_location }}"
+            fi
+            echo "Downloaded ${S3_URI} to ${DOWNLOAD_LOCATION}"
             ;;
           *)
             echo "Invalid mode. Use 'upload' or 'download'."
